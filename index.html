@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kompaktkurs | Hischam El-Sobhi</title>
+<meta name="robots" content="noindex">
+<!-- Kompaktkurs für Typ-Test- und Kalt-Leads (Auftrag Ramy 09.11.2026).
+     Inhalt kommt aus kurs-daten.js. Fortschritt bleibt nur im Browser der Person (localStorage).
+     Kein Preis, kein Login, keine Pflicht-Eingabe. Design wie relounge-landing/typ-test/mehr.html. -->
+<style>
+  :root{
+    --bg:#ffffff; --soft:#f4f8f6; --soft2:#eaf3ee; --ink:#132019; --ink2:#22332c; --muted:#63736c;
+    --line:#e5ece8; --green:#22a35f; --green-d:#178048; --green-l:#2fb46b; --green-bg:#e7f5ec;
+    --dark:#0d2a1e; --dark2:#123c2a; --gold:#d6ac18; --mint:#7fe0a5;
+    --sans:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:var(--sans);color:var(--ink);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  img{max-width:100%;display:block;height:auto;}
+  button{font-family:inherit;}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 18px;}
+  .kick{color:var(--green);font-weight:800;letter-spacing:.14em;text-transform:uppercase;font-size:.74rem;}
+
+  .topbar{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);}
+  .topbar .in{max-width:1120px;margin:0 auto;padding:10px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800;font-size:.86rem;}
+  .topbar .l{display:flex;align-items:center;gap:9px;min-width:0;}
+  .topbar .l span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .topbar img{height:28px;width:auto;border-radius:5px;}
+  .fort{display:flex;align-items:center;gap:10px;font-size:.78rem;color:var(--muted);font-weight:700;white-space:nowrap;}
+  .fort .bar{width:120px;height:8px;border-radius:8px;background:var(--soft2);overflow:hidden;}
+  .fort .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--green),var(--green-l));transition:width .5s ease;}
+  @media(max-width:560px){ .fort .bar{width:70px;} .topbar .l span{display:none;} }
+
+  /* HERO */
+  .hero{padding:clamp(34px,7vw,60px) 0 clamp(24px,5vw,40px);background:radial-gradient(760px 420px at 50% -10%,#e2f2e8,transparent 70%);text-align:center;}
+  .hero h1{text-transform:uppercase;font-weight:800;font-size:clamp(1.7rem,6.4vw,3rem);line-height:1.06;letter-spacing:-.02em;max-width:860px;margin:10px auto 0;}
+  .hero h1 span{color:var(--green);}
+  .hero p{color:var(--muted);font-size:1.08rem;max-width:640px;margin:14px auto 0;}
+  .hfacts{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px;}
+  .hfacts span{background:#fff;border:1px solid var(--line);border-radius:30px;padding:6px 13px;font-size:.86rem;font-weight:700;color:var(--ink2);box-shadow:0 4px 12px rgba(15,45,32,.05);}
+  .chip{display:inline-flex;align-items:center;gap:8px;margin-top:16px;background:var(--dark);color:#fff;border-radius:40px;padding:7px 14px 7px 7px;font-size:.88rem;font-weight:700;}
+  .chip b{background:#fff;color:var(--green-d);font-family:Georgia,serif;border-radius:30px;padding:2px 10px;font-size:.95rem;}
+  .chip[hidden]{display:none;}
+  .los{display:inline-flex;align-items:center;gap:10px;margin-top:22px;background:var(--green);color:#fff;font-weight:800;text-decoration:none;border:0;border-radius:40px;padding:15px 26px;font-size:1rem;box-shadow:0 14px 30px rgba(34,163,95,.32);cursor:pointer;}
+  .los:hover{background:var(--green-d);}
+
+  /* KURS-LAYOUT */
+  .kurs{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:26px;align-items:start;padding:10px 0 40px;}
+  @media(max-width:960px){ .kurs{grid-template-columns:1fr;} }
+  .buehne{min-width:0;}
+  .player{position:relative;border-radius:18px;overflow:hidden;background:#000;box-shadow:0 26px 60px rgba(13,42,30,.28);}
+  .player .ar{position:relative;padding-top:56.25%;}
+  .player video{position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain;}
+  .vfacade{position:absolute;inset:0;cursor:pointer;background-size:cover;background-position:center;}
+  .vfacade::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,26,20,.05),rgba(10,26,20,.55));}
+  .vfacade .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:2;width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.35);transition:transform .2s;}
+  .vfacade:hover .play{transform:translate(-50%,-50%) scale(1.06);}
+  .vfacade .play::before{content:"";border-style:solid;border-width:15px 0 15px 24px;border-color:transparent transparent transparent var(--green-d);margin-left:6px;}
+  .vfacade .vt{position:absolute;left:18px;bottom:16px;right:18px;z-index:2;color:#fff;}
+  .vfacade .vt b{display:block;font-size:clamp(1rem,2.6vw,1.35rem);font-weight:800;text-shadow:0 2px 10px rgba(0,0,0,.5);}
+  .vfacade .vt span{font-size:.82rem;opacity:.85;font-weight:700;}
+  .vfehlt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:rgba(255,255,255,.8);background:linear-gradient(160deg,var(--dark2),var(--dark));font-weight:700;text-align:center;padding:20px;}
+  .vfehlt small{font-weight:600;opacity:.7;}
+  @media(max-width:700px){ .player{border-radius:0;margin:0 -18px;} }
+
+  .kopf{margin-top:20px;}
+  .kopf .nr{font-size:.76rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--green);}
+  .kopf h2{font-size:clamp(1.35rem,4vw,2rem);line-height:1.15;font-weight:800;margin-top:4px;}
+  .kopf p{color:var(--muted);font-size:1.02rem;margin-top:6px;max-width:720px;}
+
+  .marken{margin-top:18px;border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .marken h3{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:12px 16px;background:var(--soft);font-weight:800;}
+  .marken button{display:flex;gap:12px;width:100%;text-align:left;background:#fff;border:0;border-top:1px solid var(--line);padding:11px 16px;cursor:pointer;font-size:.95rem;color:var(--ink2);}
+  .marken button:hover{background:var(--soft);}
+  .marken button i{font-style:normal;font-variant-numeric:tabular-nums;color:var(--green-d);font-weight:800;min-width:46px;}
+
+  .merk{margin-top:18px;background:var(--dark);color:#fff;border-radius:18px;padding:18px 20px;font-size:1.06rem;position:relative;}
+  .merk .k{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mint);font-weight:800;display:block;margin-bottom:4px;}
+  .merk q{font-family:Georgia,serif;font-style:italic;quotes:"„" "“";}
+
+  .aufgabe{margin-top:18px;border:2px solid var(--green-bg);background:#fbfdfc;border-radius:18px;padding:18px 18px 20px;}
+  .aufgabe h3{font-size:1.06rem;font-weight:800;}
+  .aufgabe > p{color:var(--muted);font-size:.94rem;margin-top:2px;}
+  .haken{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .haken label{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:30px;padding:8px 14px;font-size:.92rem;font-weight:600;cursor:pointer;user-select:none;transition:.15s;}
+  .haken input{accent-color:var(--green);width:16px;height:16px;}
+  .haken label.an{border-color:var(--green);background:var(--green-bg);color:var(--green-d);}
+  .antwort{margin-top:14px;background:var(--soft);border-radius:14px;padding:12px 14px;font-size:.95rem;color:var(--ink2);display:none;}
+  .antwort.da{display:block;}
+
+  .ring{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:20px;align-items:center;margin-top:12px;}
+  @media(max-width:620px){ .ring{grid-template-columns:1fr;} .ring svg{max-width:240px;margin:0 auto;} }
+  .regler label{display:block;font-size:.9rem;font-weight:700;margin-top:10px;}
+  .regler label span{float:right;color:var(--green-d);font-variant-numeric:tabular-nums;}
+  .regler input{width:100%;accent-color:var(--green);}
+
+  .muster3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+  @media(max-width:700px){ .muster3{grid-template-columns:1fr;} }
+  .mu{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;}
+  .mu .bu{width:42px;height:42px;border-radius:12px;background:var(--dark);color:var(--mint);font-family:Georgia,serif;font-weight:700;font-size:1.3rem;display:flex;align-items:center;justify-content:center;}
+  .mu h4{margin-top:10px;font-size:1rem;font-weight:800;}
+  .mu p{color:var(--muted);font-size:.9rem;margin-top:3px;}
+  .mu.ich{border:2px solid var(--green);box-shadow:0 14px 34px rgba(34,163,95,.18);}
+  .mu .tag{display:none;margin-top:8px;font-size:.72rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .mu.ich .tag{display:block;}
+
+  .rechner{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px;}
+  @media(max-width:620px){ .rechner{grid-template-columns:1fr;} }
+  .rechner label{font-size:.86rem;font-weight:700;color:var(--ink2);display:block;}
+  .rechner input{width:100%;margin-top:4px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:1rem;font-family:inherit;}
+  .summe{margin-top:14px;display:flex;flex-wrap:wrap;gap:12px;}
+  .summe div{flex:1 1 160px;background:var(--dark);color:#fff;border-radius:14px;padding:12px 14px;}
+  .summe b{display:block;font-size:1.5rem;color:var(--mint);font-variant-numeric:tabular-nums;}
+  .summe span{font-size:.82rem;opacity:.8;}
+
+  .nav{display:flex;justify-content:space-between;gap:12px;margin-top:22px;flex-wrap:wrap;}
+  .nav button{border:1px solid var(--line);background:#fff;border-radius:40px;padding:12px 20px;font-weight:800;font-size:.95rem;cursor:pointer;color:var(--ink2);}
+  .nav button.vor{background:var(--green);border-color:var(--green);color:#fff;box-shadow:0 10px 24px rgba(34,163,95,.28);}
+  .nav button:disabled{opacity:.35;cursor:default;box-shadow:none;}
+  .fertig{display:inline-flex;align-items:center;gap:8px;font-size:.86rem;font-weight:800;color:var(--green-d);}
+
+  /* SEITENLEISTE */
+  .leiste{position:sticky;top:64px;}
+  @media(max-width:960px){ .leiste{position:static;} }
+  .liste{border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff;box-shadow:0 12px 30px rgba(15,45,32,.06);}
+  .liste h3{padding:14px 16px;font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--dark);font-weight:800;display:flex;justify-content:space-between;}
+  .liste h3 span{color:var(--mint);letter-spacing:0;text-transform:none;font-size:.8rem;}
+  .kap{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:#fff;border:0;border-top:1px solid var(--line);padding:12px 14px;cursor:pointer;}
+  .kap:hover{background:var(--soft);}
+  .kap .n{flex:0 0 30px;height:30px;border-radius:50%;background:var(--soft2);color:var(--green-d);font-weight:800;font-size:.86rem;display:flex;align-items:center;justify-content:center;}
+  .kap.ok .n{background:var(--green);color:#fff;}
+  .kap.aktiv{background:var(--green-bg);}
+  .kap.aktiv .n{background:var(--dark);color:var(--mint);}
+  .kap b{display:block;font-size:.93rem;line-height:1.3;color:var(--ink);}
+  .kap span{font-size:.78rem;color:var(--muted);}
+  .gruppe{padding:10px 16px 6px;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:800;color:var(--muted);background:var(--soft);border-top:1px solid var(--line);}
+
+  .rueck{margin-top:14px;background:linear-gradient(160deg,var(--dark2),var(--dark));color:#fff;border-radius:18px;padding:18px;}
+  .rueck b{display:block;font-size:1.02rem;}
+  .rueck p{font-size:.88rem;opacity:.8;margin-top:4px;}
+  .rueck a{display:block;text-align:center;margin-top:12px;background:var(--gold);color:#1d1a0c;text-decoration:none;font-weight:800;border-radius:40px;padding:11px 14px;}
+
+  /* SCHLUSS */
+  .box{background:linear-gradient(160deg,var(--dark2),var(--dark));color:#fff;border-radius:24px;padding:clamp(26px,5vw,44px);text-align:center;box-shadow:0 26px 60px rgba(13,42,30,.28);margin:10px 0 50px;}
+  .box h2{font-weight:800;text-transform:uppercase;font-size:clamp(1.3rem,4.6vw,2rem);line-height:1.15;}
+  .box h2 span{color:var(--mint);}
+  .box p{color:rgba(255,255,255,.82);max-width:600px;margin:12px auto 0;}
+  .box .knoepfe{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;margin-top:22px;}
+  .box a{display:inline-block;text-decoration:none;font-weight:800;border-radius:40px;padding:14px 24px;}
+  .box a.h{background:var(--gold);color:#1d1a0c;}
+  .box a.n{color:#fff;border:1px solid rgba(255,255,255,.35);}
+
+  .foot{background:#0a1c14;color:rgba(255,255,255,.7);font-size:.84rem;padding:28px 20px;text-align:center;}
+  .foot a{color:rgba(255,255,255,.85);text-decoration:none;margin:0 7px;white-space:nowrap;}
+  .foot .hint{margin-top:12px;font-size:.74rem;opacity:.6;max-width:720px;margin-left:auto;margin-right:auto;}
+</style>
+</head>
+<body>
+
+<div class="topbar"><div class="in">
+  <div class="l"><img src="https://hischamelsobhi123-netizen.github.io/relounge-landing/assets-enm/logo-zfg.webp" width="200" height="112" alt="Zentrum für Gesundheitsmedizin"> <span>Zentrum für Gesundheitsmedizin</span></div>
+  <div class="fort"><span id="fortT">0 von 0</span><div class="bar"><i id="fortB"></i></div></div>
+</div></div>
+
+<section class="hero" id="top">
+  <div class="wrap">
+    <div class="kick" id="heroKick"></div>
+    <h1 id="heroH1"></h1>
+    <p id="heroP"></p>
+    <div class="hfacts" id="heroFacts"></div>
+    <div><span class="chip" id="chip" hidden><b id="chipBu">B</b> <span id="chipT">Dein Muster</span></span></div>
+    <button class="los" id="losKnopf">▶ <span id="losT">Mit Kapitel 1 starten</span></button>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="kurs" id="kurs">
+    <div class="buehne">
+      <div class="player"><div class="ar" id="pbox"></div></div>
+      <div class="kopf">
+        <div class="nr" id="kNr"></div>
+        <h2 id="kTitel"></h2>
+        <p id="kText"></p>
+      </div>
+      <div id="kMarken"></div>
+      <div id="kMerk"></div>
+      <div id="kAufgabe"></div>
+      <div class="nav">
+        <button id="zurueck">← Zurück</button>
+        <span class="fertig" id="kFertig"></span>
+        <button class="vor" id="weiter">Weiter →</button>
+      </div>
+    </div>
+    <aside class="leiste">
+      <div class="liste" id="liste"></div>
+      <div class="rueck">
+        <b>Fragen beim Schauen?</b>
+        <p>Im Gespräch geht es um dich: deine Geschichte, dein Muster und was als Nächstes sinnvoll ist.</p>
+        <a id="rueckLink" href="#">Gespräch wählen</a>
+      </div>
+    </aside>
+  </div>
+
+  <div class="box" id="schluss">
+    <h2 id="sH2"></h2>
+    <p id="sP"></p>
+    <div class="knoepfe" id="sKnoepfe"></div>
+  </div>
+</div>
+
+<div class="foot">
+  <div>
+    <a href="https://hischamelsobhi.de/impressum" target="_blank" rel="noopener">Impressum</a> ·
+    <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a>
+  </div>
+  <div style="margin-top:12px"><b style="color:#fff">Zentrum für Gesundheitsmedizin</b> · Hischam El-Sobhi · Facharzt</div>
+  <div class="hint">Dieser Kurs dient der Information und ersetzt keine ärztliche Untersuchung. Keine Heilversprechen. Erfahrungen einzelner Menschen sind nicht übertragbar, jeder Körper ist anders. Deine Eingaben bleiben auf deinem Gerät und werden nicht verschickt.</div>
+</div>
+
+<script>
+/* Automatisch von bauen.py: Dauer, Video, Vorschau und Zeitmarken je Kapitel. */
+window.KURS_BAU = {"k2": {"dauer": 776, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k2.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k2.jpg", "marken": [[0.0, "Die falsche Frage"], [152.1, "Kein Versagen, sondern ein Muster"], [231.0, "Zu viele Bälle"], [412.0, "Sei brav, sei stark"], [495.9, "Das Loch im Herzen"], [645.9, "Der erschöpfte Tanz"], [728.5, "Dein ältester Verbündeter"]]}, "k1": {"dauer": 354, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k1.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k1.jpg", "marken": [[0.0, "Anna, 53"], [112.5, "Wer ich bin"], [323.2, "Dieselben Abende"]]}, "k3": {"dauer": 790, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k3.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k3.jpg", "marken": [[0.0, "Der Rucksack"], [129.3, "Gewicht ist das Ende einer Kette"], [203.8, "21:45 Uhr am Kühlschrank"], [375.4, "Anna hat nichts falsch gemacht"], [440.7, "Die angezogene Handbremse"], [506.0, "Zwei Frauen, eine Nachricht"], [646.6, "Übung: drei Atemzüge"]]}, "k4": {"dauer": 708, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k4.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k4.jpg", "marken": [[0.0, "Verhalten ist nicht Muster"], [150.2, "Die drei Gärten"], [355.7, "Anna war ein B"], [449.8, "Heißhunger ist ein Bote"], [558.4, "Mischformen: Was führt gerade?"]]}, "k5": {"dauer": 791, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k5.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k5.jpg", "marken": [[0.0, "Der beste Samen der Welt"], [211.8, "Der Boden ist dein Darm"], [258.5, "Hormone sind keine Schalter"], [360.8, "Deine Hormone sind ein Orchester"], [667.4, "Der Eimer mit dem Loch"]]}, "k6": {"dauer": 513, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k6.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k6.jpg", "marken": [[0.0, "Fieber mit einem kalten Tuch"], [98.2, "Fünf Säulen"], [195.1, "Hinschauen. Einordnen. Dranbleiben."], [300.1, "Was braucht dein Garten zuerst?"], [367.3, "Das Thermostat"]]}, "k7": {"dauer": 367, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k7.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k7.jpg", "marken": [[0.0, "Gene sind ein Buch"], [190.5, "Michael: Der Arzt hat Recht"]]}, "k8": {"dauer": 687, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k8.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k8.jpg", "marken": [[0.0, "Silke: Alles probiert, allein kam ich nicht raus"], [56.5, "Annette: Immer nur funktioniert"], [125.1, "Manfred, 75: Ein Gerüst statt Diät"], [236.1, "Moni: 200 Kilometer weg und trotzdem begleitet"], [324.3, "Elke, 64: Endlich als Ganzes gesehen"], [421.1, "Christoph: Auf Augenhöhe begleitet"], [503.1, "Marcel: Energie und Schlaf"], [609.0, "Marion: Erst die Werte, dann der Weg"]]}, "k9": {"dauer": 567, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k9.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k9.jpg", "marken": [[0.0, "Führerschein"], [58.4, "Drei Sekunden an der Kühlschranktür"], [230.0, "Autopilot"], [359.2, "Dir hat nie etwas gefehlt"], [471.2, "Ein Garten ohne Gärtner"]]}, "k10": {"dauer": 945, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k10.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/k10.jpg", "marken": [[0.0, "Vier Etappen"], [126.3, "Woche 1: Hinschauen"], [315.1, "Ernährung ohne Verbote"], [428.8, "Nie allein"], [578.3, "Sechs Monate von heute"], [756.7, "Das Gespräch"], [920.2, "Dir hat nur der Gärtner gefehlt"]]}};
+
+</script>
+<script>
+/* Inhalt des Kompaktkurses. Dauer und Zeitmarken trägt bauen.py nach dem Schnitt ein. */
+window.KURS = {
+  kick: "Kompaktkurs mit Hischam El-Sobhi",
+  titel: "Warum dein Körper festhält <span>und was er wirklich braucht</span>",
+  text: "Was Hischam sonst an zwei Workshop-Tagen erklärt, in zehn Kapiteln zum Selbst-Anschauen. In deinem Tempo, so oft du willst.",
+  fakten: ["10 Kapitel", "Facharzt erklärt selbst", "Kein Login", "Kostenlos"],
+  termin: "https://hischamelsobhi.de/typ-test-termin",
+  test: "https://hischamelsobhi.de/typ-test",
+  schluss: {
+    titel: "Du weißt jetzt, wie dein Körper denkt. <span>Jetzt geht es um deinen.</span>",
+    text: "Im Gespräch schauen wir gemeinsam auf deine Geschichte, dein Muster und was man bei dir messen müsste. Kostenlos, per Video, etwa 40 bis 45 Minuten. Ein Nein ist genauso in Ordnung wie ein Ja.",
+    knopf: "Gesprächstermin wählen"
+  },
+  kapitel: [
+    { id: "k1", nr: 1, gruppe: "Verstehen", titel: "Vielleicht kennst du Anna",
+      text: "Eine Frau, die alles richtig macht, und trotzdem fragt sie sich: Was stimmt nicht mit mir? Dazu erzählt Hischam, wer er ist und warum er anders hinschaut.",
+      merksatz: "Irgendwann fragt sie sich nicht mehr, was ihr Körper braucht, sondern was mit ihr nicht stimmt.",
+      aufgabe: { art: "satz", frage: "Welchen Satz sagst du am häufigsten zu dir selbst?", hinweis: "Schreib ihn so auf, wie er in deinem Kopf klingt. Er bleibt auf deinem Gerät. Wir kommen später darauf zurück.", platzhalter: "z. B. „Ich habe einfach keine Disziplin.“" } },
+    { id: "k2", nr: 2, gruppe: "Verstehen", titel: "Es liegt nicht an dir",
+      text: "Warum „Was stimmt nicht mit mir?“ die falsche Frage ist, warum dein Körper Prioritäten setzt und warum Essen oft gar nicht das Problem ist, sondern eine Lösung, die nicht hält.",
+      merksatz: "Wie lange willst du noch versuchen, mit mehr Disziplin ein Problem zu lösen, das gar kein Disziplinproblem ist?",
+      aufgabe: { art: "versucht", frage: "Was hast du schon alles versucht?", hinweis: "Tippe alles an, was du schon ausprobiert hast. Das bleibt auf deinem Gerät.",
+        optionen: ["Diäten", "Kalorien zählen", "Intervallfasten", "Low Carb", "Shakes", "Abnehmspritze", "Fitnessstudio", "Apps", "Weight Watchers", "Ernährungsberatung", "Tabletten/Pulver", "Ärzte"],
+        viel: "Das ist keine Liste des Scheiterns. Das ist die Liste von jemandem, der nie aufgegeben hat.", wenig: "Merk dir deine Auswahl. Im Gespräch fragen wir dich, was am längsten gehalten hat." } },
+    { id: "k3", nr: 3, gruppe: "Verstehen", titel: "Was in deinem Körper passiert",
+      text: "Der Rucksack, die angezogene Handbremse, 21:45 Uhr am Kühlschrank: Warum ein Körper unter Dauerdruck festhält. Am Ende eine kleine Übung zum Mitmachen.",
+      merksatz: "Sicherheit ist kein Gedanke. Sicherheit ist ein Zustand im Nervensystem." },
+    { id: "k4", nr: 4, gruppe: "Dein Muster", titel: "Alarm, Bunker, Crash",
+      text: "Die drei Gärten: Wie ein Körper im Alarm, im Bunker oder im Crash reagiert, warum Heißhunger ein Bote ist und was es heißt, wenn mehrere Muster gleichzeitig laufen.",
+      merksatz: "Jeder Buchstabe ist der Beweis, wie verlässlich dein Körper dich all die Jahre geschützt hat.",
+      aufgabe: { art: "muster", frage: "Welches Muster steht bei dir im Vordergrund?", mit: "Dein Ergebnis aus dem Typ-Test ist markiert.", ohne: "Du hast den Typ-Test noch nicht gemacht? Er dauert 2 Minuten.",
+        text: { A: "Außen perfekt, innen Spannung. Zuerst braucht der Körper Sicherheit.", B: "Der Körper hat gelernt zu sparen. Zuerst braucht er Versorgung.", C: "Die Reserven sind leer. Zuerst braucht er Aufbau, dann Anstrengung." } } },
+    { id: "k5", nr: 5, gruppe: "Dein Muster", titel: "Garten, Orchester, Eimer",
+      text: "Der beste Samen wächst nicht auf jedem Boden. Hormone sind keine einzelnen Schalter, sondern ein Orchester. Und warum gesund essen nicht heißt, gesund versorgt zu sein.",
+      merksatz: "Die Frage ist nie: Wie viel gebe ich? Die Frage ist: Wo ist das Loch?" },
+    { id: "k6", nr: 6, gruppe: "Dein Muster", titel: "Die Reihenfolge ist das Geheimnis",
+      text: "Fünf Säulen, die zusammenhängen. Hinschauen, Einordnen, Dranbleiben. Und warum das Gewicht nach einer Diät so oft zurückkommt.",
+      merksatz: "Zustand zuerst, Gewicht danach.",
+      aufgabe: { art: "ring", frage: "Wie stehen deine fünf Säulen gerade?", hinweis: "Schätze jeden Bereich von 1 (kaum) bis 10 (gut). Ein Gefühl reicht, kein Test.",
+        bereiche: ["Ernährung", "Darm", "Vitalstoffe", "Bewegung", "Kopf & Stress"],
+        schwach: "Genau dort schaut man zuerst hin, mit deinen Werten, nicht mit Raten.", gut: "Schieb die Regler, dann siehst du, wo es bei dir am ehesten klemmt." } },
+    { id: "k7", nr: 7, gruppe: "Beweis", titel: "Gene sind kein Schicksal",
+      text: "Deine Gene sind ein Buch, aber nicht jede Seite wird gelesen. Dazu eine Geschichte aus der Praxis: ein Zahlenmensch, der nichts glauben wollte und ein Jahr lang Buch geführt hat.",
+      merksatz: "Was in der Familie liegt, ist eine Möglichkeit, kein Urteil." },
+    { id: "k8", nr: 8, gruppe: "Beweis", titel: "Menschen, die den Weg gegangen sind",
+      text: "Patientinnen und Patienten erzählen selbst: wie es vorher war, wie die Begleitung lief und was sich verändert hat.",
+      merksatz: "Persönliche Erfahrungen. Jeder Körper ist anders, Ergebnisse lassen sich nicht versprechen." },
+    { id: "k9", nr: 9, gruppe: "Der Weg", titel: "Wissen ist nicht Können",
+      text: "Du weißt jetzt mehr als die meisten. Warum das allein trotzdem nicht reicht, warum unter Stress der Autopilot entscheidet und was ein Garten ohne Gärtner mit Rückfällen zu tun hat.",
+      merksatz: "Nicht härter werden, sondern tragfähiger.",
+      aufgabe: { art: "bisher", frage: "Dein Satz aus Kapitel 1", hinweis: "Hischam sagt: Schreib ein Wort davor." } },
+    { id: "k10", nr: 10, gruppe: "Der Weg", titel: "So sieht dein Weg aus",
+      text: "Vier Etappen in sechs Monaten, wie die Begleitung im Alltag läuft, wie das Gespräch abläuft und was du daraus mitnimmst, egal wie du dich entscheidest.",
+      merksatz: "Dir hat nie etwas gefehlt, das in dir liegt. Dir hat nur der Gärtner gefehlt.",
+      aufgabe: { art: "rechner", frage: "Was haben dich deine Versuche bisher gekostet?", hinweis: "Grob schätzen reicht. Die Zahlen bleiben auf deinem Gerät.",
+        schluss: "Nicht, weil du etwas falsch gemacht hast. Sondern weil niemand zuerst nachgeschaut hat, wo bei dir das Loch im Eimer ist." } }
+  ].map(function (k) {
+    var b = (window.KURS_BAU || {})[k.id] || {};
+    k.dauer = b.dauer || 0; k.video = b.video || ""; k.poster = b.poster || ""; k.marken = b.marken || []; return k;
+  })
+};
+
+</script>
+<script>
+(function(){
+  var D = window.KURS, K = D.kapitel;
+  var $ = function(id){ return document.getElementById(id); };
+  var SP = 'kompaktkurs_v1';
+  var st = {};
+  try{ st = JSON.parse(localStorage.getItem(SP) || '{}'); }catch(e){}
+  st.fertig = st.fertig || {}; st.pos = st.pos || {}; st.ein = st.ein || {};
+  function speichern(){ try{ localStorage.setItem(SP, JSON.stringify(st)); }catch(e){} }
+
+  /* Muster aus dem Typ-Test (?m=A oder localStorage typ_muster, wie mehr.html) */
+  var NAME = {A:'Alarm',B:'Bunker',C:'Crash',M:'Mischung'};
+  var mein = [];
+  try{
+    var m = new URLSearchParams(location.search).get('m') || localStorage.getItem('typ_muster') || '';
+    mein = String(m).toUpperCase().replace(/[ -]/g,'+').split('+').filter(function(x){ return NAME[x]; });
+  }catch(e){}
+  if(mein.length){
+    $('chip').hidden = false; $('chipBu').textContent = mein.join('+');
+    $('chipT').textContent = 'Dein Muster: ' + mein.map(function(x){ return NAME[x]; }).join(' & ');
+  }
+
+  /* Kopf */
+  $('heroKick').textContent = D.kick; $('heroH1').innerHTML = D.titel; $('heroP').textContent = D.text;
+  $('heroFacts').innerHTML = D.fakten.map(function(f){ return '<span>'+f+'</span>'; }).join('');
+  $('rueckLink').href = D.termin;
+  $('sH2').innerHTML = D.schluss.titel; $('sP').textContent = D.schluss.text;
+  $('sKnoepfe').innerHTML = '<a class="h" href="'+D.termin+'">'+D.schluss.knopf+'</a><a class="n" href="#top">Zurück zum Anfang</a>';
+
+  function mmss(s){ s = Math.round(s); var h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h? h+':'+String(m).padStart(2,'0') : m)+':'+String(x).padStart(2,'0'); }
+  function minuten(s){ return Math.round(s/60) + ' Min'; }
+
+  /* Seitenleiste */
+  function liste(){
+    var gesamt = K.reduce(function(a,k){ return a + (k.dauer||0); }, 0);
+    var h = '<h3>Inhalt <span>'+Math.round(gesamt/60)+' Min</span></h3>', grp = null;
+    K.forEach(function(k, i){
+      if(k.gruppe !== grp){ grp = k.gruppe; h += '<div class="gruppe">'+grp+'</div>'; }
+      h += '<button class="kap'+(st.fertig[k.id]?' ok':'')+(i===akt?' aktiv':'')+'" data-i="'+i+'"><span class="n">'+(st.fertig[k.id]?'✓':k.nr)+'</span><span><b>'+k.titel+'</b><span>'+minuten(k.dauer||0)+'</span></span></button>';
+    });
+    $('liste').innerHTML = h;
+    $('liste').querySelectorAll('.kap').forEach(function(b){ b.onclick = function(){ zeige(+b.dataset.i, true); }; });
+    var n = K.filter(function(k){ return st.fertig[k.id]; }).length;
+    $('fortT').textContent = n + ' von ' + K.length; $('fortB').style.width = (100*n/K.length) + '%';
+    $('losT').textContent = n ? 'Weiterschauen' : 'Mit Kapitel 1 starten';
+  }
+
+  /* Player: erst auf Klick laden */
+  var vid = null;
+  function player(k){
+    var box = $('pbox'); box.innerHTML = ''; vid = null;
+    if(!k.video){ box.innerHTML = '<div class="vfehlt">Video folgt<small>'+k.titel+'</small></div>'; return; }
+    var f = document.createElement('div'); f.className = 'vfacade';
+    if(k.poster) f.style.backgroundImage = 'url('+k.poster+')';
+    f.innerHTML = '<div class="play" aria-label="Video abspielen"></div><div class="vt"><b>'+k.titel+'</b><span>'+minuten(k.dauer)+'</span></div>';
+    box.appendChild(f);
+    f.onclick = function(){ starte(k, st.pos[k.id] || 0); };
+  }
+  function starte(k, ab){
+    var box = $('pbox'); box.innerHTML = '';
+    var v = document.createElement('video');
+    v.src = k.video; v.controls = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
+    if(k.poster) v.poster = k.poster;
+    box.appendChild(v); vid = v;
+    v.addEventListener('loadedmetadata', function(){ if(ab && ab < v.duration - 5) v.currentTime = ab; var p = v.play(); if(p&&p.catch) p.catch(function(){}); });
+    var letzt = 0;
+    v.addEventListener('timeupdate', function(){
+      if(Math.abs(v.currentTime - letzt) > 4){ letzt = v.currentTime; st.pos[k.id] = v.currentTime; speichern(); }
+      if(v.duration && v.currentTime / v.duration > 0.9 && !st.fertig[k.id]){ st.fertig[k.id] = 1; speichern(); liste(); fertigText(k); }
+    });
+    v.addEventListener('ended', function(){ st.pos[k.id] = 0; speichern(); });
+  }
+  function springe(k, s){ if(vid){ vid.currentTime = s; vid.play(); } else starte(k, s); window.scrollTo({top: $('kurs').offsetTop - 70, behavior:'smooth'}); }
+
+  /* Aufgaben */
+  function esc(s){ return String(s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var AUF = {
+    satz: function(k, el){
+      var a = k.aufgabe;
+      el.innerHTML = '<div class="aufgabe"><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><textarea id="satzT" rows="2" maxlength="160" placeholder="'+esc(a.platzhalter)+'" style="width:100%;margin-top:12px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;font-size:1.05rem;resize:vertical">'+esc(st.ein.satz)+'</textarea><div class="antwort" id="satzA">Gespeichert. In Kapitel 9 holen wir ihn wieder hervor.</div></div>';
+      var t = $('satzT');
+      t.oninput = function(){ st.ein.satz = t.value.trim(); speichern(); $('satzA').classList.toggle('da', !!st.ein.satz); };
+      $('satzA').classList.toggle('da', !!st.ein.satz);
+    },
+    bisher: function(k, el){
+      var a = k.aufgabe, s = st.ein.satz;
+      el.innerHTML = '<div class="aufgabe"><h3>'+a.frage+'</h3>' + (s
+        ? '<p>'+a.hinweis+'</p><div style="margin-top:14px;background:linear-gradient(170deg,#fff6b8,#fde98a);border-radius:6px;padding:20px 22px;font-family:Georgia,serif;font-size:1.25rem;line-height:1.4;box-shadow:0 10px 26px rgba(0,0,0,.12)"><b style="color:var(--green-d)">Bisher</b> '+esc(s.charAt(0).toLowerCase()+s.slice(1))+'</div><div class="antwort da">Ein Wort, und aus einem Urteil wird eine Geschichte, die weitergehen kann.</div>'
+        : '<p>Du hast in Kapitel 1 noch keinen Satz notiert. <a href="#" id="zuK1" style="color:var(--green-d);font-weight:800">Zu Kapitel 1</a></p>') + '</div>';
+      var z = $('zuK1'); if(z) z.onclick = function(e){ e.preventDefault(); zeige(0, true); };
+    },
+    versucht: function(k, el){
+      var a = k.aufgabe, sel = st.ein.versucht || [];
+      el.innerHTML = '<div class="aufgabe"><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><div class="haken">'+a.optionen.map(function(o){
+        return '<label class="'+(sel.indexOf(o)>-1?'an':'')+'"><input type="checkbox" value="'+o+'"'+(sel.indexOf(o)>-1?' checked':'')+'> '+o+'</label>'; }).join('')+'</div><div class="antwort" id="vAntw"></div></div>';
+      function upd(){
+        var s = [].slice.call(el.querySelectorAll('input:checked')).map(function(i){ return i.value; });
+        st.ein.versucht = s; speichern();
+        el.querySelectorAll('label').forEach(function(l){ l.classList.toggle('an', l.querySelector('input').checked); });
+        var an = $('vAntw'); an.classList.toggle('da', s.length > 0);
+        an.innerHTML = s.length >= 3 ? '<b>'+s.length+' Wege.</b> '+a.viel : (s.length ? a.wenig : '');
+      }
+      el.querySelectorAll('input').forEach(function(i){ i.onchange = upd; }); upd();
+    },
+    ring: function(k, el){
+      var a = k.aufgabe, w = st.ein.ring || a.bereiche.map(function(){ return 5; });
+      el.innerHTML = '<div class="aufgabe"><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><div class="ring"><div class="regler">'+a.bereiche.map(function(b,i){
+        return '<label>'+b+' <span id="rw'+i+'">'+w[i]+'</span><input type="range" min="1" max="10" value="'+w[i]+'" data-i="'+i+'"></label>'; }).join('')+'</div><svg id="ringSvg" viewBox="0 0 240 240" width="230" height="230"></svg></div><div class="antwort da" id="rAntw"></div></div>';
+      function zeichne(){
+        var svg = $('ringSvg'), n = a.bereiche.length, h = '', cx = 120, cy = 120;
+        for(var r=1;r<=2;r++) h += '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*48)+'" fill="none" stroke="#e5ece8" stroke-width="1.5"/>';
+        var pts = [];
+        a.bereiche.forEach(function(b,i){
+          var ang = -Math.PI/2 + i*2*Math.PI/n, rr = 22 + w[i]*7.4, x = cx+Math.cos(ang)*rr, y = cy+Math.sin(ang)*rr;
+          pts.push(x.toFixed(1)+','+y.toFixed(1));
+          var lx = cx+Math.cos(ang)*110, ly = cy+Math.sin(ang)*110;
+          h += '<line x1="'+cx+'" y1="'+cy+'" x2="'+(cx+Math.cos(ang)*96)+'" y2="'+(cy+Math.sin(ang)*96)+'" stroke="#e5ece8"/>';
+          h += '<circle cx="'+x+'" cy="'+y+'" r="6" fill="'+(w[i]<=4?'#d6ac18':'#22a35f')+'"/>';
+          h += '<text x="'+lx+'" y="'+(ly+4)+'" text-anchor="middle" font-size="10.5" font-weight="700" fill="#22332c">'+b.split(' ')[0]+'</text>';
+        });
+        h = '<polygon points="'+pts.join(' ')+'" fill="rgba(34,163,95,.18)" stroke="#22a35f" stroke-width="2.5" stroke-linejoin="round"/>' + h;
+        svg.innerHTML = h;
+        var min = Math.min.apply(null, w), schwach = a.bereiche.filter(function(b,i){ return w[i] === min; });
+        $('rAntw').innerHTML = min <= 4 ? 'Am schwächsten hast du <b>'+schwach.join(' und ')+'</b> eingeschätzt. '+a.schwach : a.gut;
+      }
+      el.querySelectorAll('input').forEach(function(i){ i.oninput = function(){ w[+i.dataset.i] = +i.value; $('rw'+i.dataset.i).textContent = i.value; st.ein.ring = w; speichern(); zeichne(); }; });
+      zeichne();
+    },
+    muster: function(k, el){
+      var a = k.aufgabe;
+      el.innerHTML = '<div class="aufgabe"><h3>'+a.frage+'</h3><p>'+(mein.length ? a.mit : a.ohne)+'</p><div class="muster3">'+['A','B','C'].map(function(x){
+        return '<div class="mu'+(mein.indexOf(x)>-1?' ich':'')+'"><div class="bu">'+x+'</div><h4>'+NAME[x]+'</h4><p>'+a.text[x]+'</p><div class="tag">✓ Dein Muster</div></div>'; }).join('')+'</div>'+(mein.length?'':'<p style="margin-top:12px"><a href="'+D.test+'" style="color:var(--green-d);font-weight:800">Typ-Test machen (2 Minuten) →</a></p>')+'</div>';
+    },
+    rechner: function(k, el){
+      var a = k.aufgabe, e = st.ein.rechner || {jahre:'', monat:'', versuche:''};
+      el.innerHTML = '<div class="aufgabe"><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><div class="rechner">'+
+        '<label>Seit wie vielen Jahren versuchst du es?<input type="number" min="0" max="60" id="rJ" value="'+e.jahre+'" placeholder="z. B. 8"></label>'+
+        '<label>Was hast du im Schnitt pro Monat ausgegeben? (€)<input type="number" min="0" max="5000" id="rM" value="'+e.monat+'" placeholder="Shakes, Studio, Programme …"></label>'+
+        '<label>Wie viele Neustarts waren es ungefähr?<input type="number" min="0" max="200" id="rV" value="'+e.versuche+'" placeholder="z. B. 6"></label>'+
+        '</div><div class="summe" id="rSum"></div><div class="antwort da">'+a.schluss+'</div></div>';
+      function upd(){
+        e = {jahre:$('rJ').value, monat:$('rM').value, versuche:$('rV').value}; st.ein.rechner = e; speichern();
+        var j = +e.jahre||0, m = +e.monat||0, v = +e.versuche||0;
+        $('rSum').innerHTML = '<div><b>'+(j*12*m).toLocaleString('de-DE')+' €</b><span>ungefähr ausgegeben</span></div><div><b>'+j+' Jahre</b><span>Lebenszeit mit dem Thema</span></div><div><b>'+v+'×</b><span>wieder von vorn angefangen</span></div>';
+      }
+      ['rJ','rM','rV'].forEach(function(id){ $(id).oninput = upd; }); upd();
+    }
+  };
+
+  /* Kapitel zeigen */
+  var akt = 0;
+  function fertigText(k){ $('kFertig').textContent = st.fertig[k.id] ? '✓ Kapitel angesehen' : ''; }
+  function zeige(i, scroll){
+    akt = Math.max(0, Math.min(K.length-1, i)); var k = K[akt];
+    st.letzt = akt; speichern();
+    player(k);
+    $('kNr').textContent = k.gruppe + ' · Kapitel ' + k.nr + ' · ' + minuten(k.dauer||0);
+    $('kTitel').textContent = k.titel; $('kText').textContent = k.text;
+    $('kMarken').innerHTML = (k.marken && k.marken.length) ? '<div class="marken"><h3>In diesem Kapitel</h3>'+k.marken.map(function(m,j){ return '<button data-j="'+j+'"><i>'+mmss(m[0])+'</i>'+m[1]+'</button>'; }).join('')+'</div>' : '';
+    $('kMarken').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ springe(k, k.marken[+b.dataset.j][0]); }; });
+    $('kMerk').innerHTML = k.merksatz ? '<div class="merk"><span class="k">Zum Mitnehmen</span><q>'+k.merksatz+'</q></div>' : '';
+    var el = $('kAufgabe'); el.innerHTML = '';
+    if(k.aufgabe && AUF[k.aufgabe.art]) AUF[k.aufgabe.art](k, el);
+    $('zurueck').disabled = akt === 0;
+    $('weiter').textContent = akt === K.length-1 ? 'Zum Abschluss →' : 'Weiter: ' + K[akt+1].titel + ' →';
+    fertigText(k); liste();
+    if(scroll) window.scrollTo({top: $('kurs').offsetTop - 70, behavior:'smooth'});
+  }
+  $('zurueck').onclick = function(){ zeige(akt-1, true); };
+  $('weiter').onclick = function(){
+    if(!st.fertig[K[akt].id]){ st.fertig[K[akt].id] = 1; speichern(); }
+    if(akt === K.length-1){ liste(); $('schluss').scrollIntoView({behavior:'smooth'}); } else zeige(akt+1, true);
+  };
+  $('losKnopf').onclick = function(){ zeige(st.letzt || 0, true); };
+  zeige(st.letzt || 0, false);
+})();
+</script>
+</body>
+</html>
