@@ -120,6 +120,19 @@
   .summe b{display:block;font-size:1.5rem;color:var(--mint);font-variant-numeric:tabular-nums;}
   .summe span{font-size:.9rem;opacity:.85;}
 
+  /* Der erste Schritt: Check */
+  .check{margin-top:22px;background:#fff;color:var(--ink);border:2px solid var(--green);border-radius:16px;padding:20px 18px;text-align:left;box-shadow:0 12px 30px rgba(31,154,89,.14);}
+  .check .ck{font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .check h3{font-size:1.3rem;font-weight:800;line-height:1.25;margin-top:2px;}
+  .check > p{color:var(--muted);font-size:1rem;margin-top:6px;}
+  .check ul{list-style:none;margin-top:12px;}
+  .check li{position:relative;padding:5px 0 5px 32px;font-size:1.02rem;font-weight:600;}
+  .check li::before{content:"✓";position:absolute;left:0;top:5px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:.8rem;display:flex;align-items:center;justify-content:center;}
+  .check .preis{margin-top:14px;background:var(--green-bg);border-radius:12px;padding:12px 14px;font-size:1rem;color:var(--ink2);}
+  .check .preis b{font-size:1.6rem;color:var(--green-d);margin-right:6px;}
+  .check .danach{margin-top:10px;font-size:.95rem;color:var(--muted);}
+  .box .check{max-width:560px;margin:22px auto 0;}
+
   /* Alle Kapitel (eingeklappt) */
   .alle{margin:34px 0 0;border:2px solid var(--line);border-radius:16px;overflow:hidden;}
   .alle summary{list-style:none;cursor:pointer;padding:16px 18px;font-weight:800;font-size:1.05rem;display:flex;justify-content:space-between;align-items:center;background:var(--soft);}
@@ -181,6 +194,7 @@
     <p class="txt" id="kText"></p>
     <div id="kMerk"></div>
     <div id="kAufgabe"></div>
+    <div id="kCheck"></div>
     <button class="gross" id="weiter2"></button>
   </section>
 
@@ -193,6 +207,7 @@
   <div class="box" id="schluss">
     <h2 id="sH2"></h2>
     <p id="sP"></p>
+    <div id="sCheck"></div>
     <a class="gross" id="sKnopf" href="#"></a>
   </div>
 </div>
@@ -224,6 +239,18 @@ window.KURS = {
     titel: "Du weißt jetzt, wie dein Körper denkt. <span>Jetzt geht es um deinen.</span>",
     text: "Im Gespräch schauen wir gemeinsam auf deine Geschichte, dein Muster und was man bei dir messen müsste. Kostenlos, per Video, etwa 40 bis 45 Minuten. Ein Nein ist genauso in Ordnung wie ein Ja.",
     knopf: "Gesprächstermin wählen"
+  },
+  /* Der erste Schritt nach dem Gespräch (Ramy 09.11.: Check mit Preis nennen, Begleitung ohne Zahl).
+     Fassung ohne Zahl über ?p=0 (Vergleichstest). Anrechnung NICHT nennen, solange Praxis/Firma ungeklärt. */
+  check: {
+    kick: "Der erste Schritt",
+    titel: "Messen statt raten: der Check",
+    text: "Wenn du nach dem Gespräch weitermachen willst, fängt es nicht mit einem Plan von der Stange an, sondern mit deinen Werten.",
+    punkte: ["Großes Blutbild", "Unverträglichkeitstest aus derselben Blutabnahme", "Fragebogen zu deinem Stoffwechsel", "Stresstest", "Besprechung deiner Werte mit Hischam persönlich"],
+    preis: "590 €",
+    mitPreis: "einmalig. Eine private Leistung, die Krankenkasse übernimmt sie nicht.",
+    ohnePreis: "Das ist eine private Leistung, die Krankenkasse übernimmt sie nicht. Was es kostet, besprechen wir offen im Gespräch.",
+    danach: "Ob und wie es danach weitergeht, entscheidest du in Ruhe, wenn deine Werte auf dem Tisch liegen."
   },
   kapitel: [
     { id: "k1", nr: 1, gruppe: "Verstehen", titel: "Vielleicht kennst du Anna",
@@ -266,6 +293,7 @@ window.KURS = {
     { id: "k10", nr: 10, gruppe: "Der Weg", titel: "So sieht dein Weg aus",
       text: "Vier Etappen in sechs Monaten, wie die Begleitung im Alltag läuft, wie das Gespräch abläuft und was du daraus mitnimmst, egal wie du dich entscheidest.",
       merksatz: "Dir hat nie etwas gefehlt, das in dir liegt. Dir hat nur der Gärtner gefehlt.",
+      check: true,
       aufgabe: { art: "rechner", frage: "Was haben dich deine Versuche bisher gekostet?", hinweis: "Grob schätzen reicht. Die Zahlen bleiben auf deinem Gerät.",
         schluss: "Nicht, weil du etwas falsch gemacht hast. Sondern weil niemand zuerst nachgeschaut hat, wo bei dir das Loch im Eimer ist." } }
   ].map(function (k) {
@@ -302,6 +330,21 @@ window.KURS = {
   $('rueckLink').href = D.termin;
   $('sH2').innerHTML = D.schluss.titel; $('sP').textContent = D.schluss.text;
   $('sKnopf').href = D.termin; $('sKnopf').textContent = D.schluss.knopf;
+
+  /* Check-Karte. Vergleichstest: ?p=0 = ohne Zahl (nur „private Leistung“). Die Fassung wird gemerkt,
+     damit dieselbe Person beim nächsten Besuch dieselbe sieht. Ohne Angabe: mit Preis. */
+  var mitPreis = true;
+  try{
+    var pq = new URLSearchParams(location.search).get('p');
+    if(pq === '0' || pq === '1') localStorage.setItem('kompaktkurs_preis', pq);
+    mitPreis = (pq || localStorage.getItem('kompaktkurs_preis') || '1') !== '0';
+  }catch(e){}
+  function checkKarte(){
+    var c = D.check; if(!c) return '';
+    return '<div class="check"><div class="ck">'+c.kick+'</div><h3>'+c.titel+'</h3><p>'+c.text+'</p><ul>'+c.punkte.map(function(p){ return '<li>'+p+'</li>'; }).join('')+'</ul>' +
+      '<div class="preis">'+(mitPreis ? '<b>'+c.preis+'</b>'+c.mitPreis : c.ohnePreis)+'</div><div class="danach">'+c.danach+'</div></div>';
+  }
+  $('sCheck').innerHTML = checkKarte();
 
   var akt = 0, vid = null;
   function anzahl(){ return K.filter(function(k){ return st.fertig[k.id]; }).length; }
@@ -440,6 +483,7 @@ window.KURS = {
     $('kMerk').innerHTML = k.merksatz ? '<div class="merk"><span class="k">Zum Mitnehmen</span><q>'+k.merksatz+'</q></div>' : '';
     var el = $('kAufgabe'); el.innerHTML = '';
     if(k.aufgabe && AUF[k.aufgabe.art]) AUF[k.aufgabe.art](k, el);
+    $('kCheck').innerHTML = k.check ? checkKarte() : '';
     var letztes = akt === K.length - 1;
     var t = letztes ? 'Zum Abschluss ›' : 'Weiter zu Kapitel ' + K[akt+1].nr + ' ›<small>' + K[akt+1].titel + '</small>';
     $('weiter1').innerHTML = t; $('weiter2').innerHTML = t;
