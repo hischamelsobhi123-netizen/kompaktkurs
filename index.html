@@ -51,6 +51,43 @@
   .kopf .in{max-width:820px;margin:0 auto;padding:10px 18px 12px;}
   .kopf .zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:800;font-size:.95rem;color:var(--green-d);}
   .kopf .alle{background:none;border:2px solid var(--line);border-radius:30px;padding:6px 14px;font-weight:700;font-size:.9rem;color:var(--ink2);cursor:pointer;}
+  .kopf .kk{display:flex;gap:6px;flex-shrink:0;}
+  .kopf .alle,#kNr{white-space:nowrap;}
+  @media(max-width:420px){ .kopf .alle{padding:6px 10px;font-size:.84rem;} .kopf .zeile{font-size:.88rem;} }
+  .kopf a.termin{text-decoration:none;color:var(--green-d);border-color:var(--green);background:var(--green-bg);}
+  /* Termin-Karte nach Kapitel 4, 6, 8 · Teilen · Erinnern · Zugang (10.11.) */
+  .tkarte{margin-top:22px;background:linear-gradient(160deg,var(--dark2),var(--dark));color:#fff;border-radius:18px;padding:22px 20px;}
+  .tkarte .ck{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);}
+  .tkarte h3{font-size:1.3rem;font-weight:800;line-height:1.25;margin-top:4px;}
+  .tkarte p{color:rgba(255,255,255,.88);font-size:1.02rem;margin-top:8px;}
+  .tkarte .gross{margin-top:16px;}
+  .teilk{margin-top:22px;border:2px solid var(--line);border-radius:16px;padding:18px;text-align:center;}
+  .teilk b{font-size:1.1rem;} .teilk p{color:var(--muted);margin-top:4px;}
+  .teilk .tk{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px;}
+  .teilk .twa,.teilk .tkopie{font:inherit;font-weight:800;font-size:1rem;border-radius:40px;padding:12px 20px;cursor:pointer;text-decoration:none;}
+  .teilk .twa{background:#25d366;color:#fff;border:0;} .teilk .tkopie{background:var(--soft);color:var(--ink);border:2px solid var(--line);}
+  .erinner{margin-top:14px;background:#fff8dc;border:2px solid #f0d36a;border-radius:16px;padding:16px 18px;}
+  .erinner b{font-size:1.1rem;} .erinner p{color:var(--ink2);margin-top:2px;}
+  .erinner .ew{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .erinner .ew button{flex:1 1 140px;min-height:52px;border:2px solid #e3c24c;background:#fff;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer;color:var(--ink);}
+  .erinner .ew button.an{background:var(--green);border-color:var(--green);color:#fff;}
+  .erinner .eok{margin-top:12px;font-weight:700;color:var(--green-d);}
+  .erinner .eok a{color:var(--green-d);}
+  .zugang{position:fixed;inset:0;z-index:70;background:rgba(5,15,10,.72);display:flex;padding:14px;overflow:auto;}
+  .zblatt{margin:auto;background:#fff;border-radius:22px;max-width:520px;width:100%;padding:22px 18px;box-shadow:0 30px 70px rgba(0,0,0,.35);}
+  @media(max-width:520px){ .zblatt h3{font-size:1.2rem;} .zblatt label{margin-top:9px;} .zblatt input:not([type=checkbox]){padding:10px 12px;} }
+  .zblatt .ck{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .zblatt h3{font-size:1.35rem;font-weight:800;line-height:1.25;margin-top:4px;}
+  .zblatt > p{color:var(--muted);margin-top:6px;}
+  .zblatt label{display:block;font-weight:700;margin-top:12px;font-size:1rem;}
+  .zblatt label span{font-weight:500;color:var(--muted);}
+  .zblatt input:not([type=checkbox]){width:100%;margin-top:4px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;font-size:1.1rem;}
+  .zblatt .ja{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:.92rem;color:var(--ink2);}
+  .zblatt .ja input{width:24px;height:24px;flex:0 0 24px;margin-top:2px;accent-color:var(--green);}
+  .zblatt .ja span{color:var(--ink2);}
+  .zblatt .zfehl{margin-top:12px;background:#fdecec;color:#8a1c1c;border-radius:10px;padding:10px 12px;font-weight:700;}
+  .zblatt .gross{margin-top:16px;}
+  .zblatt .spaeter{display:block;margin:10px auto 0;background:none;border:0;color:var(--muted);text-decoration:underline;font-size:1rem;cursor:pointer;padding:6px;}
   .punkte{display:flex;gap:5px;margin-top:8px;}
   .punkte i{flex:1;height:9px;border-radius:9px;background:var(--soft2);}
   .punkte i.ok{background:var(--green);}
@@ -173,7 +210,7 @@
 <!-- KAPITEL -->
 <div id="ansicht" hidden>
   <div class="kopf"><div class="in">
-    <div class="zeile"><span id="kNr">Kapitel 1 von 10</span><button class="alle" id="alleKnopf">Alle Kapitel</button></div>
+    <div class="zeile"><span id="kNr">Kapitel 1 von 10</span><span class="kk"><a class="alle termin" data-termin href="#">📅 Termin</a><button class="alle" id="alleKnopf">Alle Kapitel</button></span></div>
     <div class="punkte" id="punkte"></div>
   </div></div>
   <div class="wrap">
@@ -226,6 +263,10 @@ window.KURS = {
   start: "Hischam erklärt dir in 10 kurzen Videos, warum dein Körper festhält und was er wirklich braucht. Du schaust einfach eins nach dem anderen.",
   /* GHL-Workflow „Kompaktkurs: Fortschritt“ → Auslöser „Inbound Webhook“: hier die Adresse eintragen. Leer = keine Meldungen. */
   webhook: "",
+  /* Öffentliche Kurs-Adresse (für Teilen-Link und Kalendereintrag) */
+  adresse: "https://hischamelsobhi.de/kompaktkurs-v7k3",
+  /* Nach diesen Kapiteln steht die Karte „Du weißt schon, dass du Begleitung möchtest? Termin wählen“ (Ramy 10.11.) */
+  terminNach: [4, 6, 8],
   /* Erklärvideo „So funktioniert der Kurs“ (Remotion KursTutorial). Leer = Knopf wird nicht gezeigt. */
   tutorial: "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/tutorial.mp4",
   termin: "https://hischamelsobhi.de/typ-test-termin",
@@ -304,31 +345,78 @@ window.KURS = {
   var $ = function(id){ return document.getElementById(id); };
   var SP = 'kompaktkurs_v1', st = {};
   try{ st = JSON.parse(localStorage.getItem(SP) || '{}'); }catch(e){}
-  st.fertig = st.fertig || {}; st.pos = st.pos || {}; st.ein = st.ein || {};
+  st.fertig = st.fertig || {}; st.pos = st.pos || {}; st.ein = st.ein || {}; st.posd = st.posd || {};
   function speichern(){ try{ localStorage.setItem(SP, JSON.stringify(st)); }catch(e){} }
   function esc(s){ return String(s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function minuten(s){ return Math.max(1, Math.round(s/60)) + ' Minuten'; }
 
-  /* Persönlicher Link: ?n=Vorname&m=B&c=Kontakt-ID&p=0|1 (wird gemerkt) */
+  /* Persönlicher Link: ?n=Vorname&m=B&c=Kontakt-ID&p=0|1 (wird gemerkt)
+     Dazu (10.11.): q = Quelle (typtest, danke, anruf, reel, empfehlung …, nur die erste zählt),
+     von = Kontakt-ID der Person, die den Kurs weitergeschickt hat, k/t = Kapitel und Sekunde
+     zum Weiterschauen (kommen aus GHL in jeder Erinnerung, damit es auch auf einem anderen Gerät klappt). */
   var q = new URLSearchParams(location.search);
-  ['n','m','c','p'].forEach(function(x){ var v = q.get(x); if(v !== null){ st['url_'+x] = v; } });
+  ['n','m','c','p'].forEach(function(x){ var v = q.get(x); if(v !== null && v !== '' && !/\{\{/.test(v)){ st['url_'+x] = v; } });
+  if(q.get('q') && !st.quelle) st.quelle = q.get('q').slice(0,30);
+  if(q.get('von') && !st.von) st.von = q.get('von').slice(0,40);
+  /* Gemeinsamer Speicher mit der Typ-Test-Danke-Seite (gleiche Domain hischamelsobhi.de) */
+  var kk = {};
+  try{ kk = JSON.parse(localStorage.getItem('kurs_kontakt') || '{}') || {}; }catch(e){}
+  if(!st.url_c && kk.c) st.url_c = kk.c;
+  if(!st.url_n && kk.n) st.url_n = kk.n;
+  if(!st.url_m && kk.m) st.url_m = kk.m;
+  if(kk.e && !st.mail) st.mail = kk.e;
+  if(kk.t && !st.tel) st.tel = kk.t;
+  if(!st.quelle) st.quelle = (kk.c || kk.e) ? 'danke' : 'direkt';
+  function kontaktMerken(){ try{ kk.c = st.url_c || kk.c; kk.n = st.url_n || kk.n; kk.e = st.mail || kk.e; kk.t = st.tel || kk.t; localStorage.setItem('kurs_kontakt', JSON.stringify(kk)); }catch(e){} }
+  kontaktMerken();
   speichern();
   var name = (st.url_n || '').replace(/[^\wäöüÄÖÜß\- ]/g,'').slice(0,30);
   var NAME = {A:'Alarm',B:'Bunker',C:'Crash',M:'Mischung'}, mein = [];
   try{ mein = String(st.url_m || localStorage.getItem('typ_muster') || '').toUpperCase().replace(/[ -]/g,'+').split('+').filter(function(x){ return NAME[x]; }); }catch(e){}
   var mitPreis = (st.url_p || '1') !== '0';
 
-  /* Meldungen an GHL (optional, nur wenn eine Webhook-Adresse hinterlegt ist und der Link eine Kontakt-ID trägt) */
+  /* Meldungen an GHL (Inbound Webhook, kurs-daten.js → webhook).
+     Nur wenn wir wissen, wer schaut (Kontakt-ID aus dem Link oder E-Mail aus der Zugangs-Karte).
+     Meilensteine gehen pro Person einmal raus; „immer“ = jedes Mal (Sitzungsende, Erinnerung, Zugang). */
   var gemeldet = st.gemeldet || {};
-  function melde(ereignis, daten){
-    if(!D.webhook || !st.url_c || gemeldet[ereignis]) return;
-    gemeldet[ereignis] = 1; st.gemeldet = gemeldet; speichern();
+  function bekannt(){ return !!(st.url_c || st.mail); }
+  function stand(){
+    var k = K[Math.min(st.letzt || 0, K.length-1)];
+    return {kapitel: k.nr, sekunde: Math.round(st.pos[k.id] || 0), minuten: Math.round((st.sek || 0) / 60)};
+  }
+  function melde(ereignis, daten, immer){
+    if(!D.webhook || !bekannt()) return;
+    if(!immer){ if(gemeldet[ereignis]) return; gemeldet[ereignis] = 1; st.gemeldet = gemeldet; speichern(); }
     try{
-      var body = JSON.stringify(Object.assign({kontakt: st.url_c, ereignis: ereignis, muster: mein.join('+'), fassung: mitPreis ? 'mit_preis' : 'ohne_preis', fortschritt: anzahl()}, daten || {}));
-      if(navigator.sendBeacon){ navigator.sendBeacon(D.webhook, new Blob([body], {type:'text/plain'})); }
-      else fetch(D.webhook, {method:'POST', body: body, keepalive: true, mode:'no-cors'});
+      var body = JSON.stringify(Object.assign({kontakt: st.url_c || '', email: st.mail || '', telefon: st.tel || '', vorname: name, ereignis: ereignis,
+        muster: mein.join('-'), fassung: mitPreis ? 'mit_preis' : 'ohne_preis', preis: mitPreis ? '1' : '0', fortschritt: anzahl(), quelle: st.quelle || '', von: st.von || '',
+        datum: new Date().toISOString()}, stand(), daten || {}));
+      if(navigator.sendBeacon && navigator.sendBeacon(D.webhook, new Blob([body], {type:'text/plain'}))) return;
+      fetch(D.webhook, {method:'POST', body: body, keepalive: true, mode:'no-cors'});
     }catch(e){}
   }
+  /* Sitzungsende: wenn sie den Tab schließt, das Handy sperrt oder die App wechselt.
+     Höchstens alle 2 Minuten und nur, wenn seitdem mindestens 20 Sekunden geschaut wurden. Daraus holt GHL sie genau dorthin zurück. */
+  var letzteMeldung = 0, sekBeiMeldung = st.sek || 0;
+  function sitzungEnde(){
+    if((st.sek || 0) - sekBeiMeldung < 20 || Date.now() - letzteMeldung < 120000) return;
+    letzteMeldung = Date.now(); sekBeiMeldung = st.sek || 0;
+    melde('sitzung_ende', {}, true);
+  }
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') sitzungEnde(); });
+  window.addEventListener('pagehide', sitzungEnde);
+
+  /* Weiterschauen über den Link aus GHL (?k=5&t=432): gilt, wenn er weiter ist als der Stand auf diesem Gerät */
+  (function(){
+    var kq = parseInt(q.get('k'), 10), tq = parseInt(q.get('t'), 10) || 0;
+    if(!(kq >= 1 && kq <= K.length)) return;
+    var kap = K[kq-1], l = st.letzt || 0;
+    if(kq-1 > l || (kq-1 === l && tq > (st.pos[kap.id] || 0))){
+      st.letzt = kq-1; st.pos[kap.id] = tq; st.posd[kap.id] = kap.dauer;
+      for(var i = 0; i < kq-1; i++) st.fertig[K[i].id] = st.fertig[K[i].id] || 1;
+      speichern();
+    }
+  })();
 
   /* Start */
   var gesamt = K.reduce(function(a,k){ return a + (k.dauer||0); }, 0);
@@ -337,9 +425,11 @@ window.KURS = {
   if(mein.length){ $('muster').hidden = false; $('musterBu').textContent = mein.join('+'); $('musterT').textContent = 'Dein Muster: ' + mein.map(function(x){ return NAME[x]; }).join(' & '); }
   function anzahl(){ return K.filter(function(k){ return st.fertig[k.id]; }).length; }
   function startKnopf(){
-    var n = anzahl(), l = st.letzt || 0;
-    $('losT').textContent = n ? '▶ Weiterschauen' : '▶ Los geht\'s';
-    $('losS').textContent = n ? 'bei Kapitel ' + K[l].nr + ' von ' + K.length : 'Kapitel 1: ' + K[0].titel + ' · ' + minuten(K[0].dauer||0);
+    var n = anzahl(), l = st.letzt || 0, ps = st.pos[K[l].id] || 0, zurueckDa = n || l || ps > 20;
+    if(zurueckDa) $('hallo').textContent = name ? 'Willkommen zurück, ' + name + '.' : 'Willkommen zurück.';
+    if(zurueckDa) $('startSatz').textContent = 'Du warst bei Kapitel ' + K[l].nr + ': „' + K[l].titel + '“' + (ps > 60 ? ', etwa bei Minute ' + Math.floor(ps/60) : '') + '. Mit einem Tipp geht es genau dort weiter.';
+    $('losT').textContent = zurueckDa ? '▶ Weiterschauen' : '▶ Los geht\'s';
+    $('losS').textContent = zurueckDa ? 'Kapitel ' + K[l].nr + ' von ' + K.length : 'Kapitel 1: ' + K[0].titel + ' · ' + minuten(K[0].dauer||0);
     $('startKlein').textContent = n ? n + ' von ' + K.length + ' Kapiteln schon angesehen' : K.length + ' kurze Kapitel · je ' + Math.round(Math.min.apply(null, K.map(function(k){ return k.dauer||360; }))/60) + ' bis ' + Math.round(Math.max.apply(null, K.map(function(k){ return k.dauer||0; }))/60) + ' Minuten · kostenlos';
   }
   startKnopf();
@@ -386,13 +476,113 @@ window.KURS = {
     $('kMerk').innerHTML = k.merksatz ? '<div class="merk"><span class="k">Zum Mitnehmen</span><q>'+k.merksatz+'</q></div>' : '';
     var el = $('kAufgabe'); el.innerHTML = '';
     if(k.aufgabe && AUF[k.aufgabe.art]) AUF[k.aufgabe.art](k, el);
-    $('kCheck').innerHTML = k.check ? checkKarte() : '';
+    $('kCheck').innerHTML = (k.check ? checkKarte() : '') + (TERMIN_NACH.indexOf(k.nr) > -1 ? terminKarte() : '') + (k.nr === 8 ? teilenKarte() : '');
+    verknuepfen($('kCheck'));
     var letztes = akt === K.length - 1;
     $('weiter').innerHTML = letztes ? 'Zum Abschluss ›' : 'Weiter ›<small>Kapitel ' + K[akt+1].nr + ': ' + K[akt+1].titel + '</small>';
     $('zurueck').disabled = false;
     punkte(); player(k);
-    melde('kapitel_' + k.nr + '_geoeffnet');
+    var r = $('erinner'); if(r) r.remove();
+    if(akt >= 1) setTimeout(zugangPruefen, 0);
   }
+
+  /* ---------- Neu 10.11.: Termin, Teilen, Erinnern, Zugang ---------- */
+  var KURS_URL = D.adresse || 'https://hischamelsobhi.de/kompaktkurs-v7k3';
+  var TERMIN_NACH = D.terminNach || [4, 6, 8];
+  function terminLink(){
+    var p = new URLSearchParams(); if(mein.length) p.set('m', mein.join('-')); if(name) p.set('first_name', name);
+    return D.termin + (p.toString() ? (D.termin.indexOf('?') < 0 ? '?' : '&') + p : '');
+  }
+  /* Wer schon weiß, dass sie Begleitung will, soll nicht bis Kapitel 10 warten müssen (Ramy 10.11.) */
+  function terminKarte(){
+    return '<div class="tkarte"><div class="ck">Schon klar für dich?</div><h3>Du weißt schon, dass du ärztlich begleitet werden möchtest?</h3>'
+      + '<p>Dann wähl dir jetzt einen festen Termin für dein persönliches Gespräch. Wir schauen gemeinsam, wie es bei dir genau aussieht. Den Kurs kannst du trotzdem zu Ende schauen.</p>'
+      + '<a class="gross" data-termin href="#">📅 Meinen Termin wählen<small>per Video · etwa 45 Minuten · kostenlos</small></a></div>';
+  }
+  function teilenKarte(){
+    return '<div class="teilk"><b>Kennst du jemanden, dem es genauso geht?</b><p>Schick ihr Hischams Kurs. Sie schaut in ihrem Tempo, kostenlos.</p>'
+      + '<div class="tk"><a class="twa" data-teilen href="#">Per WhatsApp schicken</a><button type="button" class="tkopie" data-kopie>Link kopieren</button></div></div>';
+  }
+  function teilenUrl(){ var p = new URLSearchParams({p:'0', q:'empfehlung'}); if(st.url_c) p.set('von', st.url_c); return KURS_URL + '?' + p; }
+  function verknuepfen(el){
+    el.querySelectorAll('[data-termin]').forEach(function(a){ a.href = terminLink(); a.onclick = function(){ melde('termin_klick', {wo: 'kapitel_' + (K[akt] ? K[akt].nr : 'ende')}, true); }; });
+    el.querySelectorAll('[data-teilen]').forEach(function(a){
+      a.href = 'https://wa.me/?text=' + encodeURIComponent('Ich schaue gerade einen kostenlosen Kurs von Hischam El-Sobhi, Facharzt. Es geht darum, warum der Körper festhält, obwohl man alles richtig macht. Schau mal rein: ' + teilenUrl());
+      a.target = '_blank'; a.rel = 'noopener'; a.onclick = function(){ melde('geteilt', {}, true); };
+    });
+    el.querySelectorAll('[data-kopie]').forEach(function(b){ b.onclick = function(){
+      var u = teilenUrl(), ok = function(){ b.textContent = 'Kopiert ✓'; melde('geteilt', {}, true); };
+      if(navigator.clipboard) navigator.clipboard.writeText(u).then(ok, function(){ prompt('Link kopieren:', u); }); else prompt('Link kopieren:', u);
+    }; });
+  }
+  verknuepfen($('ansicht'));
+
+  /* „Keine Zeit mehr?“ – erscheint, wenn sie mitten im Kapitel pausiert */
+  function zeitpunkt(wann){
+    var d = new Date(), z = new Date(d);
+    if(wann === 'heute_abend'){ z.setHours(19,30,0,0); if(z - d < 45*60000) z.setDate(z.getDate()+1); }
+    else if(wann === 'morgen_frueh'){ z.setDate(z.getDate()+1); z.setHours(8,30,0,0); }
+    else { var tage = (6 - d.getDay() + 7) % 7 || 7; z.setDate(z.getDate()+tage); z.setHours(10,0,0,0); }
+    return z;
+  }
+  function erinnerKarte(k){
+    if($('erinner')) return;
+    var e = document.createElement('div'); e.id = 'erinner'; e.className = 'erinner';
+    e.innerHTML = '<b>Keine Zeit mehr? Kein Problem.</b><p>' + (bekannt() ? 'Wann sollen wir dich erinnern? Du kommst dann genau an diese Stelle zurück.' : 'Trag dir einen Moment ein, dann schaust du genau hier weiter.') + '</p>'
+      + '<div class="ew">' + [['heute_abend','Heute Abend'],['morgen_frueh','Morgen früh'],['wochenende','Am Wochenende']].map(function(w){ return '<button type="button" data-w="'+w[0]+'">'+w[1]+'</button>'; }).join('') + '</div>'
+      + '<div class="eok" hidden></div>';
+    $('pbox').parentNode.parentNode.insertBefore(e, $('pbox').parentNode.nextSibling);
+    e.querySelectorAll('[data-w]').forEach(function(b){ b.onclick = function(){
+      var z = zeitpunkt(b.dataset.w), ok = e.querySelector('.eok');
+      e.querySelectorAll('[data-w]').forEach(function(x){ x.classList.toggle('an', x === b); });
+      var tag = z.toLocaleDateString('de-DE', {weekday:'long'}), zeit = z.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+      if(bekannt()){ melde('erinnerung', {wann: b.dataset.w, erinnerung_um: z.toISOString()}, true); }
+      ok.hidden = false;
+      ok.innerHTML = (bekannt() ? '✓ Machen wir. Wir schicken dir am ' + tag + ' um ' + zeit + ' Uhr deinen Link. ' : '') + '<a href="#" data-ics>📅 In meinen Kalender eintragen</a>';
+      ok.querySelector('[data-ics]').onclick = function(ev){ ev.preventDefault(); kalender(z, k); };
+    }; });
+  }
+  function kalender(z, k){
+    var p = new URLSearchParams({k: k.nr, q: 'kalender'}); if(st.url_c) p.set('c', st.url_c); if(name) p.set('n', name); if(mein.length) p.set('m', mein.join('-')); if(!mitPreis) p.set('p', '0');
+    var url = KURS_URL + '?' + p, f = function(d){ return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/, ''); };
+    var ende = new Date(z.getTime() + 30*60000);
+    var ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Kompaktkurs//DE','BEGIN:VEVENT','UID:kurs-' + Date.now() + '@hischamelsobhi.de','DTSTAMP:' + f(new Date()),
+      'DTSTART:' + f(z),'DTEND:' + f(ende),'SUMMARY:Hischams Kompaktkurs weiterschauen (Kapitel ' + k.nr + ')','DESCRIPTION:Hier geht es weiter: ' + url,'URL:' + url,
+      'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:Kompaktkurs','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'})); a.download = 'kompaktkurs.ics';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); }, 500);
+    melde('kalender', {}, true);
+  }
+
+  /* Zugangs-Karte: Wer ohne persönlichen Link kommt (Reel, Empfehlung, Merk-Link), sieht Kapitel 1 frei.
+     Vor Kapitel 2 (und, falls „Später“, noch einmal vor Kapitel 4) fragen wir freundlich, wohin wir den Zugang schicken dürfen. */
+  function zugangPruefen(){
+    if(!D.webhook || bekannt() || $('zugang')) return;
+    if(akt >= 3 ? st.tor4 : (akt >= 1 ? st.tor2 : true)) return;
+    if(vid){ try{ vid.pause(); }catch(e){} }
+    var z = document.createElement('div'); z.id = 'zugang'; z.className = 'zugang';
+    z.innerHTML = '<form class="zblatt" novalidate><div class="ck">Dein persönlicher Zugang</div><h3>Damit du jederzeit genau hier weiterschauen kannst</h3>'
+      + '<p>Wohin dürfen wir dir deinen Zugang schicken? Kein Passwort, nur ein Link.</p>'
+      + '<label>Vorname<input name="n" autocomplete="given-name" required value="' + esc(name) + '"></label>'
+      + '<label>E-Mail<input name="e" type="email" autocomplete="email" inputmode="email" required></label>'
+      + '<label>Handy für WhatsApp <span>(freiwillig)</span><input name="t" type="tel" autocomplete="tel" inputmode="tel"></label>'
+      + '<label class="ja"><input type="checkbox" name="ok" required> <span>Ich möchte meinen Zugang und Erinnerungen zum Kurs per E-Mail bekommen (und per WhatsApp, wenn ich eine Nummer angebe). Dafür speichert Hischams Team, wie weit ich im Kurs bin. Abmelden geht jederzeit. <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></span></label>'
+      + '<div class="zfehl" hidden></div><button class="gross" type="submit">Zugang sichern und weiterschauen</button>'
+      + '<button type="button" class="spaeter">Später</button></form>';
+    document.body.appendChild(z);
+    var f = z.querySelector('form');
+    z.querySelector('.spaeter').onclick = function(){ if(akt >= 3) st.tor4 = 1; else st.tor2 = 1; speichern(); z.remove(); if(vid) vid.play(); };
+    f.onsubmit = function(ev){
+      ev.preventDefault();
+      var n = f.n.value.trim(), e = f.e.value.trim(), t = f.t.value.trim(), fehl = z.querySelector('.zfehl');
+      var msg = !n ? 'Bitte deinen Vornamen eintragen.' : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) ? 'Bitte prüf deine E-Mail-Adresse.' : !f.ok.checked ? 'Bitte setz das Häkchen, damit wir dir den Zugang schicken dürfen.' : '';
+      if(msg){ fehl.hidden = false; fehl.textContent = msg; return; }
+      st.url_n = n; name = n.replace(/[^\wäöüÄÖÜß\- ]/g,'').slice(0,30); st.mail = e; st.tel = t; st.tor2 = st.tor4 = 1; speichern(); kontaktMerken();
+      melde('zugang_angefordert', {}, true);
+      z.remove(); if(vid) vid.play();
+    };
+  }
+  function uhr(t){ t = Math.floor(t); return Math.floor(t/60) + ':' + ('0' + (t%60)).slice(-2); }
   function player(k){
     var box = $('pbox'); box.innerHTML = ''; vid = null;
     if(!k.video){ box.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff">Video folgt</div>'; return; }
@@ -408,16 +598,37 @@ window.KURS = {
   function starte(k){
     var box = $('pbox'); box.innerHTML = '';
     var v = document.createElement('video');
-    v.src = k.video; v.controls = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
+    v.src = k.video + (k.video.indexOf('?') < 0 && k.dauer ? '?v=' + Math.round(k.dauer) : ''); /* neue Schnittfassung = neue Adresse, kein altes Video aus dem Zwischenspeicher */ v.controls = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
     if(k.poster) v.poster = k.poster;
     box.appendChild(v); vid = v;
+    /* Ramy 10.11.: Kapitel sprang beim Öffnen auf Minute 7. Ursache: gespeicherte Stelle aus einer älteren
+       Schnittfassung. Jetzt: Stelle gilt nur für dieselbe Fassung (Dauer), und es wird nie still gesprungen,
+       sondern gefragt: „Weiterschauen bei 7:12“ oder „Von vorne“. */
     var ab = st.pos[k.id] || 0;
-    v.addEventListener('loadedmetadata', function(){ if(ab && ab < v.duration - 5) v.currentTime = ab; });
-    var p = v.play(); if(p && p.catch) p.catch(function(){});
-    melde('kapitel_' + k.nr + '_gestartet');
-    var letzt = 0;
+    if(!st.posd[k.id] || !k.dauer || Math.abs(st.posd[k.id] - k.dauer) > 2) ab = 0;
+    if(ab > 20 && k.dauer && ab < k.dauer - 30){
+      var fr = document.createElement('div'); fr.className = 'ende';
+      fr.innerHTML = '<div class="hak">Du warst schon bei '+uhr(ab)+'</div><button class="gross">▶ Weiterschauen</button><button class="nochmal">Von vorne beginnen</button>';
+      box.appendChild(fr);
+      /* Springen erst, wenn das Video seine Länge kennt; vorher setzt der Browser die Stelle sonst stillschweigend auf 0 zurück */
+      var los = function(t){
+        fr.remove();
+        var spring = function(){ try{ if(t) v.currentTime = t; }catch(e){} var p = v.play(); if(p && p.catch) p.catch(function(){}); };
+        if(v.readyState >= 1) spring(); else v.addEventListener('loadedmetadata', spring, {once: true});
+      };
+      fr.querySelector('.gross').onclick = function(){ los(ab); };
+      fr.querySelector('.nochmal').onclick = function(){ los(0); };
+    } else {
+      var p = v.play(); if(p && p.catch) p.catch(function(){});
+    }
+    var letzt = 0, vorher = null;
+    v.addEventListener('pause', function(){ if(!v.ended && v.currentTime > 15) erinnerKarte(k); });
+    v.addEventListener('play', function(){ var r = $('erinner'); if(r) r.remove(); });
     v.addEventListener('timeupdate', function(){
-      if(Math.abs(v.currentTime - letzt) > 4){ letzt = v.currentTime; st.pos[k.id] = v.currentTime; speichern(); }
+      /* echte Sehzeit zählen (Springen zählt nicht) */
+      if(vorher !== null){ var d = v.currentTime - vorher; if(d > 0 && d < 2){ st.sek = (st.sek || 0) + d; } }
+      vorher = v.currentTime;
+      if(Math.abs(v.currentTime - letzt) > 4){ letzt = v.currentTime; st.pos[k.id] = v.currentTime; st.posd[k.id] = k.dauer; speichern(); }
       if(v.duration && v.currentTime / v.duration > 0.9 && !st.fertig[k.id]){ st.fertig[k.id] = 1; speichern(); punkte(); melde('kapitel_' + k.nr + '_gesehen'); if(anzahl() === K.length) melde('kurs_komplett'); }
     });
     v.addEventListener('ended', function(){
@@ -439,7 +650,7 @@ window.KURS = {
     if(!$('schluss').hidden){ zeigeAnsicht('kapitel', K.length - 1); return; }
     if(akt === 0) zeigeAnsicht('start'); else zeigeAnsicht('kapitel', akt - 1);
   }
-  $('weiter').onclick = function(){ if(!$('schluss').hidden){ location.href = D.termin; return; } weiter(); };
+  $('weiter').onclick = function(){ if(!$('schluss').hidden){ melde('termin_klick', {wo: 'leiste_ende'}, true); location.href = terminLink(); return; } weiter(); };
   $('zurueck').onclick = zurueck;
   $('losKnopf').onclick = function(){ zeigeAnsicht('kapitel', st.letzt || 0); var k = K[akt]; if(k.video) starte(k); };
 
@@ -447,12 +658,12 @@ window.KURS = {
   function schluss(){
     $('kNr').textContent = 'Geschafft'; akt = K.length; punkte();
     $('sH').innerHTML = D.schluss.titel; $('sP').textContent = D.schluss.text;
-    $('sCheck').innerHTML = checkKarte();
-    $('sKnopf').href = D.termin; $('sKnopf').textContent = D.schluss.knopf;
+    $('sCheck').innerHTML = checkKarte() + teilenKarte(); verknuepfen($('sCheck'));
+    $('sKnopf').href = terminLink(); $('sKnopf').textContent = D.schluss.knopf;
     $('weiter').innerHTML = D.schluss.knopf + ' ›';
     melde('abschluss_gesehen');
   }
-  $('sKnopf').onclick = function(){ melde('termin_klick'); };
+  $('sKnopf').onclick = function(){ melde('termin_klick', {wo: 'abschluss'}, true); };
 
   /* Übersicht */
   $('alleKnopf').onclick = function(){
