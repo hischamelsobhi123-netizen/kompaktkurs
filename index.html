@@ -105,6 +105,10 @@
   .ende{position:absolute;inset:0;z-index:5;background:rgba(10,30,22,.94);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px 22px;}
   .ende .hak{font-size:1.3rem;font-weight:800;}
   .ende .gross{max-width:440px;margin-top:12px;}
+  .ende .tlink{display:inline-block;margin-top:10px;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.35);color:#fff;border-radius:30px;padding:7px 16px;font-weight:800;font-size:1rem;text-decoration:none;}
+  .ende .unten{display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:8px;} .ende .unten .tlink,.ende .unten .nochmal{margin-top:0;}
+  .eselbst{margin-top:12px;font-size:1rem;color:var(--ink2);} .eselbst a{font-weight:800;color:var(--green-d);}
+  .start .zweit{display:inline-block;margin-top:14px;background:none;border:0;color:var(--green-d);font-weight:800;font-size:1.05rem;text-decoration:underline;cursor:pointer;padding:6px;}
   .ende .nochmal{background:none;border:0;color:#fff;text-decoration:underline;font-size:1rem;margin-top:10px;cursor:pointer;padding:6px;}
   @media(max-width:560px){ .player{border-radius:0;margin-left:-18px;margin-right:-18px;} .ende .hak{font-size:1.05rem;} .ende .gross{min-height:54px;font-size:1.05rem;margin-top:6px;} .ende .gross small{display:none;} }
   .txt{color:var(--muted);font-size:1.05rem;margin-top:16px;}
@@ -204,6 +208,7 @@
   <p class="satz" id="startSatz"></p>
   <div><span class="muster" id="muster" hidden><b id="musterBu">B</b><span id="musterT"></span></span></div>
   <button class="gross" id="losKnopf"><span id="losT">▶ Los geht's</span><small id="losS"></small></button>
+  <button class="zweit" id="zweitKnopf" hidden></button>
   <button class="tutknopf" id="tutKnopf" hidden>▶ So funktioniert der Kurs <span>· 30 Sekunden</span></button>
   <div class="klein" id="startKlein"></div>
 </section>
@@ -218,6 +223,7 @@
     <section class="kapitel" id="kapitel">
       <h1 id="kTitel"></h1>
       <div class="player"><div class="ar" id="pbox"></div></div>
+      <div id="kVorne"></div>
       <p class="txt" id="kText"></p>
       <div id="kMerk"></div>
       <div id="kAufgabe"></div>
@@ -438,6 +444,14 @@ window.KURS = {
     $('startKlein').textContent = n ? n + ' von ' + K.length + ' Kapiteln schon angesehen' : K.length + ' kurze Kapitel · je ' + Math.round(Math.min.apply(null, K.map(function(k){ return k.dauer||360; }))/60) + ' bis ' + Math.round(Math.max.apply(null, K.map(function(k){ return k.dauer||0; }))/60) + ' Minuten · kostenlos';
   }
   startKnopf();
+  /* 11.11.: Wer den Kurs schon fertig hat und wiederkommt, will meist nicht nochmal Kapitel 10 sehen. Hauptknopf = Termin. */
+  var fertigDa = st.abschluss || st.fertig[K[K.length-1].id];
+  if(fertigDa){
+    $('hallo').textContent = name ? 'Schön, dass du wieder da bist, ' + name + '.' : 'Schön, dass du wieder da bist.';
+    $('startSatz').textContent = st.termin ? 'Du hast den ganzen Kurs gesehen. Falls dein Termin noch nicht steht: Hier wählst du ihn in einer Minute.' : 'Du hast den ganzen Kurs gesehen. Jetzt fehlt nur noch ein Schritt: dein kostenloses Gespräch mit Hischam.';
+    $('losT').textContent = '📅 Termin wählen'; $('losS').textContent = 'per Video · etwa 45 Minuten · kostenlos';
+    $('zweitKnopf').hidden = false; $('zweitKnopf').textContent = 'Lieber nochmal in den Kurs schauen';
+  }
 
   /* Kurzes Erklärvideo „So funktioniert der Kurs“ (kurs-daten.js → tutorial). Danach direkt in Kapitel 1. */
   if(D.tutorial){
@@ -481,7 +495,8 @@ window.KURS = {
     $('kMerk').innerHTML = k.merksatz ? '<div class="merk"><span class="k">Zum Mitnehmen</span><q>'+k.merksatz+'</q></div>' : '';
     var el = $('kAufgabe'); el.innerHTML = '';
     if(k.aufgabe && AUF[k.aufgabe.art]) AUF[k.aufgabe.art](k, el);
-    $('kCheck').innerHTML = (k.gespraech ? gespraechKarte(true) : '') + (TERMIN_NACH.indexOf(k.nr) > -1 ? terminKarte() : '') + (k.nr === 8 ? teilenKarte() : '');
+    $('kVorne').innerHTML = k.gespraech ? gespraechKarte(true) : ''; verknuepfen($('kVorne'));
+    $('kCheck').innerHTML = (TERMIN_NACH.indexOf(k.nr) > -1 ? terminKarte() : '') + (k.nr === 8 ? teilenKarte() : '');
     verknuepfen($('kCheck'));
     var letztes = akt === K.length - 1;
     $('weiter').innerHTML = letztes ? 'Zum Abschluss ›' : 'Weiter ›<small>Kapitel ' + K[akt+1].nr + ': ' + K[akt+1].titel + '</small>';
@@ -494,6 +509,7 @@ window.KURS = {
   /* ---------- Neu 10.11.: Termin, Teilen, Erinnern, Zugang ---------- */
   var KURS_URL = D.adresse || 'https://hischamelsobhi.de/kompaktkurs-v7k3';
   var TERMIN_NACH = D.terminNach || [4, 6, 8];
+  function terminGeklickt(){ st.termin = (st.termin || 0) + 1; speichern(); }
   function terminLink(){
     var p = new URLSearchParams(); if(mein.length) p.set('m', mein.join('-')); if(name) p.set('first_name', name);
     return D.termin + (p.toString() ? (D.termin.indexOf('?') < 0 ? '?' : '&') + p : '');
@@ -510,7 +526,7 @@ window.KURS = {
   }
   function teilenUrl(){ var p = new URLSearchParams({p:'0', q:'empfehlung'}); if(st.url_c) p.set('von', st.url_c); return KURS_URL + '?' + p; }
   function verknuepfen(el){
-    el.querySelectorAll('[data-termin]').forEach(function(a){ a.href = terminLink(); a.onclick = function(){ melde('termin_klick', {wo: 'kapitel_' + (K[akt] ? K[akt].nr : 'ende')}, true); }; });
+    el.querySelectorAll('[data-termin]').forEach(function(a){ a.href = terminLink(); a.onclick = function(){ terminGeklickt(); melde('termin_klick', {wo: 'kapitel_' + (K[akt] ? K[akt].nr : 'ende')}, true); }; });
     el.querySelectorAll('[data-teilen]').forEach(function(a){
       a.href = 'https://wa.me/?text=' + encodeURIComponent('Ich schaue gerade einen kostenlosen Kurs von Hischam El-Sobhi, Facharzt. Es geht darum, warum der Körper festhält, obwohl man alles richtig macht. Schau mal rein: ' + teilenUrl());
       a.target = '_blank'; a.rel = 'noopener'; a.onclick = function(){ melde('geteilt', {}, true); };
@@ -535,8 +551,12 @@ window.KURS = {
     var e = document.createElement('div'); e.id = 'erinner'; e.className = 'erinner';
     e.innerHTML = '<b>Keine Zeit mehr? Kein Problem.</b><p>' + (bekannt() ? 'Wann sollen wir dich erinnern? Du kommst dann genau an diese Stelle zurück.' : 'Trag dir einen Moment ein, dann schaust du genau hier weiter.') + '</p>'
       + '<div class="ew">' + [['heute_abend','Heute Abend'],['morgen_frueh','Morgen früh'],['wochenende','Am Wochenende']].map(function(w){ return '<button type="button" data-w="'+w[0]+'">'+w[1]+'</button>'; }).join('') + '</div>'
-      + '<div class="eok" hidden></div>';
+      + '<div class="eok" hidden></div>'
+      + '<div class="eselbst">Oder schick dir den Link: <a data-swa href="#">per WhatsApp</a> · <a data-smail href="#">per E-Mail</a></div>';
     $('pbox').parentNode.parentNode.insertBefore(e, $('pbox').parentNode.nextSibling);
+    var selbst = function(){ return 'Hier schaue ich Hischams Kurs weiter, genau an meiner Stelle (Kapitel ' + k.nr + '): ' + weiterLink(k, 'selbst'); };
+    e.querySelector('[data-swa]').onclick = function(ev){ ev.preventDefault(); melde('link_selbst', {wie: 'whatsapp'}, true); window.open('https://wa.me/?text=' + encodeURIComponent(selbst()), '_blank', 'noopener'); };
+    e.querySelector('[data-smail]').onclick = function(ev){ ev.preventDefault(); melde('link_selbst', {wie: 'mail'}, true); location.href = 'mailto:?subject=' + encodeURIComponent('Hischams Kurs: hier geht es weiter') + '&body=' + encodeURIComponent(selbst()); };
     e.querySelectorAll('[data-w]').forEach(function(b){ b.onclick = function(){
       var z = zeitpunkt(b.dataset.w), ok = e.querySelector('.eok');
       e.querySelectorAll('[data-w]').forEach(function(x){ x.classList.toggle('an', x === b); });
@@ -547,9 +567,14 @@ window.KURS = {
       ok.querySelector('[data-ics]').onclick = function(ev){ ev.preventDefault(); kalender(z, k); };
     }; });
   }
+  /* Link, der auf jedem Gerät genau an diese Stelle führt (k/t) */
+  function weiterLink(k, quelle){
+    var p = new URLSearchParams({k: k.nr, q: quelle}); var t = Math.floor(vid && !vid.ended ? vid.currentTime : (st.pos[k.id] || 0)); if(t > 5) p.set('t', t);
+    if(st.url_c) p.set('c', st.url_c); if(name) p.set('n', name); if(mein.length) p.set('m', mein.join('-')); if(!mitPreis) p.set('p', '0');
+    return KURS_URL + '?' + p;
+  }
   function kalender(z, k){
-    var p = new URLSearchParams({k: k.nr, q: 'kalender'}); if(st.url_c) p.set('c', st.url_c); if(name) p.set('n', name); if(mein.length) p.set('m', mein.join('-')); if(!mitPreis) p.set('p', '0');
-    var url = KURS_URL + '?' + p, f = function(d){ return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/, ''); };
+    var url = weiterLink(k, 'kalender'), f = function(d){ return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/, ''); };
     var ende = new Date(z.getTime() + 30*60000);
     var ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Kompaktkurs//DE','BEGIN:VEVENT','UID:kurs-' + Date.now() + '@hischamelsobhi.de','DTSTAMP:' + f(new Date()),
       'DTSTART:' + f(z),'DTEND:' + f(ende),'SUMMARY:Hischams Kompaktkurs weiterschauen (Kapitel ' + k.nr + ')','DESCRIPTION:Hier geht es weiter: ' + url,'URL:' + url,
@@ -641,10 +666,19 @@ window.KURS = {
       st.pos[k.id] = 0; st.fertig[k.id] = 1; speichern(); punkte(); vollbildAus(v);
       var e = document.createElement('div'); e.className = 'ende';
       var letztes = akt === K.length - 1;
-      e.innerHTML = '<div class="hak">✓ Kapitel '+k.nr+' geschafft</div><button class="gross">'+(letztes ? 'Zum Abschluss ›' : 'Weiter ›<small>Kapitel '+K[akt+1].nr+': '+K[akt+1].titel+'</small>')+'</button><button class="nochmal">Nochmal ansehen</button>';
-      box.appendChild(e);
-      e.querySelector('.gross').onclick = weiter;
-      e.querySelector('.nochmal').onclick = function(){ e.remove(); v.currentTime = 0; v.play(); };
+      /* 11.11.: Wer am Ende auf „Weiter“ tippt, sieht die Karten unter dem Video nie. Darum steht der Termin hier im Endbild:
+         nach Kap. 10 als Hauptknopf, nach Kap. 4/6/8 als zweiter Weg. */
+      if(letztes){
+        e.innerHTML = '<div class="hak">✓ Du hast den ganzen Kurs geschafft</div><a class="gross" data-termin href="#">📅 Termin wählen<small>dein kostenloses Gespräch mit Hischam</small></a>'
+          + '<div class="unten"><button class="nochmal" data-weiter>Zum Abschluss</button><button class="nochmal" data-nochmal>Nochmal ansehen</button></div>';
+      } else {
+        e.innerHTML = '<div class="hak">✓ Kapitel '+k.nr+' geschafft</div><button class="gross" data-weiter>Weiter ›<small>Kapitel '+K[akt+1].nr+': '+K[akt+1].titel+'</small></button>'
+          + '<div class="unten">' + (TERMIN_NACH.indexOf(k.nr) > -1 ? '<a class="tlink" data-termin href="#">📅 Termin wählen</a>' : '')
+          + '<button class="nochmal" data-nochmal>Nochmal ansehen</button></div>';
+      }
+      box.appendChild(e); verknuepfen(e);
+      e.querySelector('[data-weiter]').onclick = weiter;
+      e.querySelector('[data-nochmal]').onclick = function(){ e.remove(); v.currentTime = 0; v.play(); };
     });
   }
   function weiter(){
@@ -656,20 +690,24 @@ window.KURS = {
     if(!$('schluss').hidden){ zeigeAnsicht('kapitel', K.length - 1); return; }
     if(akt === 0) zeigeAnsicht('start'); else zeigeAnsicht('kapitel', akt - 1);
   }
-  $('weiter').onclick = function(){ if(!$('schluss').hidden){ melde('termin_klick', {wo: 'leiste_ende'}, true); location.href = terminLink(); return; } weiter(); };
+  $('weiter').onclick = function(){ if(!$('schluss').hidden){ terminGeklickt(); melde('termin_klick', {wo: 'leiste_ende'}, true); location.href = terminLink(); return; } weiter(); };
   $('zurueck').onclick = zurueck;
-  $('losKnopf').onclick = function(){ zeigeAnsicht('kapitel', st.letzt || 0); var k = K[akt]; if(k.video) starte(k, true); };
+  $('losKnopf').onclick = function(){
+    if(fertigDa){ terminGeklickt(); melde('termin_klick', {wo: 'start_wieder'}, true); location.href = terminLink(); return; }
+    zeigeAnsicht('kapitel', st.letzt || 0); var k = K[akt]; if(k.video) starte(k, true);
+  };
+  $('zweitKnopf').onclick = function(){ zeigeAnsicht('kapitel', K.length - 1); };
 
   /* Abschluss */
   function schluss(){
-    $('kNr').textContent = 'Geschafft'; akt = K.length; punkte();
+    $('kNr').textContent = 'Geschafft'; akt = K.length; punkte(); st.abschluss = 1; speichern();
     $('sH').innerHTML = D.schluss.titel; $('sP').textContent = D.schluss.text;
     $('sCheck').innerHTML = gespraechKarte(false); $('sTeilen').innerHTML = teilenKarte(); verknuepfen($('sTeilen'));
     $('sKnopf').href = terminLink(); $('sKnopf').textContent = D.schluss.knopf;
     $('weiter').innerHTML = D.schluss.knopf + ' ›';
     melde('abschluss_gesehen');
   }
-  $('sKnopf').onclick = function(){ melde('termin_klick', {wo: 'abschluss'}, true); };
+  $('sKnopf').onclick = function(){ terminGeklickt(); melde('termin_klick', {wo: 'abschluss'}, true); };
 
   /* Übersicht */
   $('alleKnopf').onclick = function(){
