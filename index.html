@@ -167,6 +167,7 @@
   .check li::before{content:"✓";position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;font-size:.8rem;display:flex;align-items:center;justify-content:center;}
   .check .preis{margin-top:14px;background:var(--green-bg);border-radius:12px;padding:12px 14px;font-size:1rem;color:var(--ink2);}
   .check .preis b{font-size:1.7rem;color:var(--green-d);margin-right:6px;}
+  .check .gross{margin-top:16px;}
   .check .danach{margin-top:10px;font-size:.98rem;color:var(--muted);}
 
   /* Abschluss */
@@ -229,6 +230,7 @@
       </div>
       <div id="sCheck"></div>
       <a class="gross gold" id="sKnopf" href="#"></a>
+      <div id="sTeilen"></div>
       <p class="txt" style="text-align:center">Du kannst jedes Kapitel jederzeit nochmal ansehen: oben auf „Alle Kapitel“ tippen.</p>
     </section>
   </div>
@@ -273,20 +275,19 @@ window.KURS = {
   test: "https://hischamelsobhi.de/typ-test",
   schluss: {
     titel: "Du weißt jetzt, wie dein Körper denkt. <span>Jetzt geht es um deinen.</span>",
-    text: "Im Gespräch schauen wir gemeinsam auf deine Geschichte, dein Muster und was man bei dir messen müsste. Kostenlos, per Video, etwa 40 bis 45 Minuten. Ein Nein ist genauso in Ordnung wie ein Ja.",
+    text: "Alles, was du im Kurs gesehen hast, schauen wir uns jetzt bei dir persönlich an. Ein Nein ist genauso in Ordnung wie ein Ja.",
     knopf: "Gesprächstermin wählen"
   },
-  /* Der erste Schritt nach dem Gespräch (Ramy 09.11.: Check mit Preis nennen, Begleitung ohne Zahl).
-     Fassung ohne Zahl über ?p=0 (Vergleichstest). Anrechnung NICHT nennen, solange Praxis/Firma ungeklärt. */
-  check: {
-    kick: "Der erste Schritt",
-    titel: "Messen statt raten: der Check",
-    text: "Wenn du nach dem Gespräch weitermachen willst, fängt es nicht mit einem Plan von der Stange an, sondern mit deinen Werten.",
-    punkte: ["Großes Blutbild", "Unverträglichkeitstest aus derselben Blutabnahme", "Fragebogen zu deinem Stoffwechsel", "Stresstest", "Besprechung deiner Werte mit Hischam persönlich"],
-    preis: "590 €",
-    mitPreis: "einmalig. Eine private Leistung, die Krankenkasse übernimmt sie nicht.",
-    ohnePreis: "Das ist eine private Leistung, die Krankenkasse übernimmt sie nicht. Was es kostet, besprechen wir offen im Gespräch.",
-    danach: "Ob und wie es danach weitergeht, entscheidest du in Ruhe, wenn deine Werte auf dem Tisch liegen."
+  /* Ramy 11.11.: Am Ende nur noch EIN Ziel, das kostenlose Gespräch. Der Check (590 €) wird nicht mehr im Kurs gezeigt,
+     er gehört ins Gespräch. Alte Check-Daten stehen im git-Verlauf von kompaktkurs (vor 11.11.). */
+  gespraech: {
+    kick: "Dein nächster Schritt",
+    titel: "Dein kostenloses Gespräch mit Hischam",
+    text: "Bevor irgendetwas entschieden wird, schauen wir gemeinsam auf dich. Darum geht es:",
+    punkte: ["Deine Geschichte: was du schon versucht hast und was nie gehalten hat", "Dein Muster: welcher Garten bei dir den Ton angibt", "Was man bei dir messen müsste, statt weiter zu raten", "Wie die sechs Monate bei dir aussehen könnten", "Ehrlich: ob die Begleitung zu dir passt"],
+    fakten: "Kostenlos · per Video · etwa 45 Minuten",
+    danach: "Ein Nein ist genauso in Ordnung wie ein Ja. Du entscheidest in Ruhe.",
+    knopf: "📅 Termin wählen<small>dein kostenloses Gespräch</small>"
   },
   kapitel: [
     { id: "k1", nr: 1, gruppe: "Verstehen", titel: "Vielleicht kennst du Anna",
@@ -329,7 +330,7 @@ window.KURS = {
     { id: "k10", nr: 10, gruppe: "Der Weg", titel: "So sieht dein Weg aus",
       text: "Vier Etappen in sechs Monaten, wie die Begleitung im Alltag läuft, wie das Gespräch abläuft und was du daraus mitnimmst, egal wie du dich entscheidest.",
       merksatz: "Dir hat nie etwas gefehlt, das in dir liegt. Dir hat nur der Gärtner gefehlt.",
-      check: true,
+      gespraech: true,
       aufgabe: { art: "rechner", frage: "Was haben dich deine Versuche bisher gekostet?", hinweis: "Grob schätzen reicht. Die Zahlen bleiben auf deinem Gerät.",
         schluss: "Nicht, weil du etwas falsch gemacht hast. Sondern weil niemand zuerst nachgeschaut hat, wo bei dir das Loch im Eimer ist." } }
   ].map(function (k) {
@@ -480,7 +481,7 @@ window.KURS = {
     $('kMerk').innerHTML = k.merksatz ? '<div class="merk"><span class="k">Zum Mitnehmen</span><q>'+k.merksatz+'</q></div>' : '';
     var el = $('kAufgabe'); el.innerHTML = '';
     if(k.aufgabe && AUF[k.aufgabe.art]) AUF[k.aufgabe.art](k, el);
-    $('kCheck').innerHTML = (k.check ? checkKarte() : '') + (TERMIN_NACH.indexOf(k.nr) > -1 ? terminKarte() : '') + (k.nr === 8 ? teilenKarte() : '');
+    $('kCheck').innerHTML = (k.gespraech ? gespraechKarte(true) : '') + (TERMIN_NACH.indexOf(k.nr) > -1 ? terminKarte() : '') + (k.nr === 8 ? teilenKarte() : '');
     verknuepfen($('kCheck'));
     var letztes = akt === K.length - 1;
     $('weiter').innerHTML = letztes ? 'Zum Abschluss ›' : 'Weiter ›<small>Kapitel ' + K[akt+1].nr + ': ' + K[akt+1].titel + '</small>';
@@ -663,7 +664,7 @@ window.KURS = {
   function schluss(){
     $('kNr').textContent = 'Geschafft'; akt = K.length; punkte();
     $('sH').innerHTML = D.schluss.titel; $('sP').textContent = D.schluss.text;
-    $('sCheck').innerHTML = checkKarte() + teilenKarte(); verknuepfen($('sCheck'));
+    $('sCheck').innerHTML = gespraechKarte(false); $('sTeilen').innerHTML = teilenKarte(); verknuepfen($('sTeilen'));
     $('sKnopf').href = terminLink(); $('sKnopf').textContent = D.schluss.knopf;
     $('weiter').innerHTML = D.schluss.knopf + ' ›';
     melde('abschluss_gesehen');
@@ -681,11 +682,11 @@ window.KURS = {
   $('zu').onclick = function(){ $('uebersicht').hidden = true; };
   $('uebersicht').onclick = function(e){ if(e.target === $('uebersicht')) $('uebersicht').hidden = true; };
 
-  /* Check-Karte (Kapitel 10 und Abschluss). p=0: ohne Zahl */
-  function checkKarte(){
-    var c = D.check; if(!c) return '';
+  /* Gesprächs-Karte (Kapitel 10 mit Knopf, Abschluss ohne, dort steht der große Knopf darunter). Ramy 11.11.: kein Check mehr im Kurs */
+  function gespraechKarte(mitKnopf){
+    var c = D.gespraech; if(!c) return '';
     return '<div class="check"><div class="ck">'+c.kick+'</div><h3>'+c.titel+'</h3><p>'+c.text+'</p><ul>'+c.punkte.map(function(p){ return '<li>'+p+'</li>'; }).join('')+'</ul>' +
-      '<div class="preis">'+(mitPreis ? '<b>'+c.preis+'</b>'+c.mitPreis : c.ohnePreis)+'</div><div class="danach">'+c.danach+'</div></div>';
+      '<div class="preis">'+c.fakten+'</div>' + (mitKnopf ? '<a class="gross" data-termin href="#">'+c.knopf+'</a><div class="danach">'+c.danach+'</div>' : '') + '</div>';
   }
 
   /* Mitmachen (freiwillig) */
