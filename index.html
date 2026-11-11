@@ -276,7 +276,7 @@ window.KURS = {
   /* Nach diesen Kapiteln steht die Karte „Du weißt schon, dass du Begleitung möchtest? Termin wählen“ (Ramy 10.11.) */
   terminNach: [4, 6, 8],
   /* Erklärvideo „So funktioniert der Kurs“ (Remotion KursTutorial). Leer = Knopf wird nicht gezeigt. */
-  tutorial: "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/tutorial.mp4",
+  tutorial: "",   /* 11.11. Ramy: raus, zweiter Knopf am Start lenkt ab, Erstes soll Hischam sein. Wieder an: "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/tutorial.mp4" */
   termin: "https://hischamelsobhi.de/typ-test-termin",
   test: "https://hischamelsobhi.de/typ-test",
   schluss: {
@@ -441,7 +441,7 @@ window.KURS = {
     if(zurueckDa) $('startSatz').textContent = 'Du warst bei Kapitel ' + K[l].nr + ': „' + K[l].titel + '“' + (ps > 60 ? ', etwa bei Minute ' + Math.floor(ps/60) : '') + '. Mit einem Tipp geht es genau dort weiter.';
     $('losT').textContent = zurueckDa ? '▶ Weiterschauen' : '▶ Los geht\'s';
     $('losS').textContent = zurueckDa ? 'Kapitel ' + K[l].nr + ' von ' + K.length : 'Kapitel 1: ' + K[0].titel + ' · ' + minuten(K[0].dauer||0);
-    $('startKlein').textContent = n ? n + ' von ' + K.length + ' Kapiteln schon angesehen' : K.length + ' kurze Kapitel · je ' + Math.round(Math.min.apply(null, K.map(function(k){ return k.dauer||360; }))/60) + ' bis ' + Math.round(Math.max.apply(null, K.map(function(k){ return k.dauer||0; }))/60) + ' Minuten · kostenlos';
+    $('startKlein').textContent = n ? n + ' von ' + K.length + ' Kapiteln schon angesehen' : K.length + ' kurze Kapitel · je ' + Math.round(Math.min.apply(null, K.map(function(k){ return k.dauer||360; }))/60) + ' bis ' + Math.round(Math.max.apply(null, K.map(function(k){ return k.dauer||0; }))/60) + ' Minuten · kostenlos · du kannst jederzeit pausieren, deine Stelle wird gemerkt';
   }
   startKnopf();
   /* 11.11.: Wer den Kurs schon fertig hat und wiederkommt, will meist nicht nochmal Kapitel 10 sehen. Hauptknopf = Termin. */
