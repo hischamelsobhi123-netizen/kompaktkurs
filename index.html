@@ -122,6 +122,12 @@
   .zur{flex:0 0 auto;min-width:96px;background:#fff;border:2px solid var(--line);border-radius:16px;font-size:1.05rem;font-weight:700;color:var(--ink2);cursor:pointer;padding:0 14px;}
   .zur:disabled{opacity:.35;cursor:default;}
   .leiste .gross{flex:1;min-height:64px;font-size:1.2rem;box-shadow:none;}
+  /* Termin ab Kapitel 3 immer sichtbar (Ramy 13.11.: „PERMANENT im Sichtbarkeitsbereich, darf nicht untergehen“) */
+  .tbar{display:flex;align-items:center;justify-content:center;gap:8px;max-width:820px;margin:0 auto 10px;min-height:52px;padding:10px 14px;border-radius:14px;background:var(--gold);color:#1d1a0c;font-weight:800;font-size:1.08rem;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .tbar small{display:block;font-weight:600;font-size:.82rem;opacity:.95;}
+  .tbar[hidden]{display:none;}
+  body.mitTermin .kapitel{padding-bottom:220px;}
+  body.mitTermin .foot{padding-bottom:230px;}
 
   /* Mitmachen (freiwillig) */
   .aufgabe{margin-top:22px;border:2px solid var(--green-bg);background:#fbfdfc;border-radius:16px;padding:18px;}
@@ -245,7 +251,9 @@
     <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a>
     <div class="hint">Dieser Kurs dient der Information und ersetzt keine ärztliche Untersuchung. Keine Heilversprechen. Erfahrungen einzelner Menschen sind nicht übertragbar, jeder Körper ist anders.</div>
   </div>
-  <div class="leiste"><div class="in">
+  <div class="leiste">
+    <a class="tbar" id="tbar" data-termin href="#" hidden><span>📅 Kostenloses Gespräch mit Hischam wählen<small>per Video · etwa 45 Minuten</small></span></a>
+    <div class="in">
     <button class="zur" id="zurueck">‹ Zurück</button>
     <button class="gross" id="weiter"></button>
   </div></div>
@@ -270,7 +278,7 @@ window.KURS = {
   fakten: ["10 Kapitel", "Facharzt erklärt selbst", "Kein Login", "Kostenlos"],
   start: "Hischam erklärt dir in 10 kurzen Videos, warum dein Körper festhält und was er wirklich braucht. Du schaust einfach eins nach dem anderen.",
   /* GHL-Workflow „Kompaktkurs: Fortschritt“ → Auslöser „Inbound Webhook“: hier die Adresse eintragen. Leer = keine Meldungen. */
-  webhook: "",
+  webhook: "https://services.leadconnectorhq.com/hooks/rSmjF755vmdOhFQVTAVz/webhook-trigger/e8a534c2-d61a-4ab2-b1e2-d5a50d51f669",
   /* Öffentliche Kurs-Adresse (für Teilen-Link und Kalendereintrag) */
   adresse: "https://hischamelsobhi.de/kompaktkurs-v7k3",
   /* Nach diesen Kapiteln steht die Karte „Du weißt schon, dass du Begleitung möchtest? Termin wählen“ (Ramy 10.11.) */
@@ -373,7 +381,21 @@ window.KURS = {
   if(!st.url_m && kk.m) st.url_m = kk.m;
   if(kk.e && !st.mail) st.mail = kk.e;
   if(kk.t && !st.tel) st.tel = kk.t;
-  if(!st.quelle) st.quelle = (kk.c || kk.e) ? 'danke' : 'direkt';
+  /* 13.11. (Ramy: „wer über den Typ-Test kommt, deren Daten haben wir schon“): GHL-Formulare (Typ-Test, Workshop-Anmeldung)
+     legen nach dem Absenden die Kontaktdaten unter hischamelsobhi.de im Browser ab (Schlüssel „_ud“, form_embed.js,
+     „sticky contacts“). Der Kurs liegt auf derselben Domain: Wer dort schon ein Formular ausgefüllt hat, muss nichts mehr eintippen. */
+  var ghl = {};
+  try{
+    var roh = localStorage.getItem('_ud') || '';
+    try{ ghl = JSON.parse(roh); }catch(e){ try{ ghl = JSON.parse(atob(roh)); }catch(e2){ ghl = {}; } }
+    if(typeof ghl === 'string'){ try{ ghl = JSON.parse(ghl); }catch(e3){ ghl = {}; } }
+    if(!ghl || typeof ghl !== 'object' || (ghl.location_id && ghl.location_id !== 'rSmjF755vmdOhFQVTAVz')) ghl = {};
+  }catch(e){ ghl = {}; }
+  var ghlMail = ghl.email || '', ghlTel = ghl.phone || ghl.phone_number || '', ghlName = ghl.first_name || ghl.firstName || String(ghl.full_name || ghl.name || '').split(' ')[0] || '';
+  if(ghlMail && /@/.test(ghlMail) && !st.mail){ st.mail = String(ghlMail).trim(); st.ausFormular = 1; }
+  if(ghlTel && !st.tel) st.tel = e164(ghlTel);
+  if(ghlName && !st.url_n) st.url_n = ghlName;
+  if(!st.quelle) st.quelle = (kk.c || kk.e) ? 'danke' : (st.ausFormular ? 'formular' : 'direkt');
   function kontaktMerken(){ try{ kk.c = st.url_c || kk.c; kk.n = st.url_n || kk.n; kk.e = st.mail || kk.e; kk.t = st.tel || kk.t; localStorage.setItem('kurs_kontakt', JSON.stringify(kk)); }catch(e){} }
   kontaktMerken();
   speichern();
@@ -503,7 +525,8 @@ window.KURS = {
     $('zurueck').disabled = false;
     punkte(); player(k);
     var r = $('erinner'); if(r) r.remove();
-    if(akt >= 1) setTimeout(zugangPruefen, 0);
+    var tb = $('tbar'); if(tb){ tb.hidden = akt < 2; document.body.classList.toggle('mitTermin', akt >= 2); }
+    if(akt >= 1) setTimeout(function(){ zugangPruefen(); waPruefen(); }, 0);
   }
 
   /* ---------- Neu 10.11.: Termin, Teilen, Erinnern, Zugang ---------- */
@@ -541,9 +564,10 @@ window.KURS = {
   /* „Keine Zeit mehr?“ – erscheint, wenn sie mitten im Kapitel pausiert */
   function zeitpunkt(wann){
     var d = new Date(), z = new Date(d);
-    if(wann === 'heute_abend'){ z.setHours(19,30,0,0); if(z - d < 45*60000) z.setDate(z.getDate()+1); }
-    else if(wann === 'morgen_frueh'){ z.setDate(z.getDate()+1); z.setHours(8,30,0,0); }
-    else { var tage = (6 - d.getDay() + 7) % 7 || 7; z.setDate(z.getDate()+tage); z.setHours(10,0,0,0); }
+    /* Passt genau zu GHL „Kompaktkurs: Wunsch-Erinnerung“: dort 30 Min (abends/Wochenende) bzw. 6 Std (früh) warten, dann Fenster 19:30, 8:30, Sa 10:00 */
+    if(wann === 'heute_abend'){ z.setHours(19,30,0,0); if(z - d < 15*60000) z.setDate(z.getDate()+1); }
+    else if(wann === 'morgen_frueh'){ z.setHours(8,30,0,0); if(z - d < 345*60000) z.setDate(z.getDate()+1); }
+    else { z.setDate(z.getDate() + (6 - d.getDay() + 7) % 7); z.setHours(10,0,0,0); if(z - d < 15*60000) z.setDate(z.getDate()+7); }
     return z;
   }
   function erinnerKarte(k){
@@ -561,7 +585,7 @@ window.KURS = {
       var z = zeitpunkt(b.dataset.w), ok = e.querySelector('.eok');
       e.querySelectorAll('[data-w]').forEach(function(x){ x.classList.toggle('an', x === b); });
       var tag = z.toLocaleDateString('de-DE', {weekday:'long'}), zeit = z.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
-      if(bekannt()){ melde('erinnerung', {wann: b.dataset.w, erinnerung_um: z.toISOString()}, true); }
+      if(bekannt()){ melde('erinnerung_' + b.dataset.w, {wann: b.dataset.w, erinnerung_um: z.toISOString()}, true); }
       ok.hidden = false;
       ok.innerHTML = (bekannt() ? '✓ Machen wir. Wir schicken dir am ' + tag + ' um ' + zeit + ' Uhr deinen Link. ' : '') + '<a href="#" data-ics>📅 In meinen Kalender eintragen</a>';
       ok.querySelector('[data-ics]').onclick = function(ev){ ev.preventDefault(); kalender(z, k); };
@@ -584,32 +608,73 @@ window.KURS = {
     melde('kalender', {}, true);
   }
 
-  /* Zugangs-Karte: Wer ohne persönlichen Link kommt (Reel, Empfehlung, Merk-Link), sieht Kapitel 1 frei.
-     Vor Kapitel 2 (und, falls „Später“, noch einmal vor Kapitel 4) fragen wir freundlich, wohin wir den Zugang schicken dürfen. */
+  /* Telefonnummer mit Landesvorwahl, wie GHL sie erwartet: 0171… → +49171…, 0043… → +43… */
+  function e164(t){
+    var d = String(t || '').replace(/[^\d+]/g, '');
+    if(d.indexOf('00') === 0) return '+' + d.slice(2);
+    if(d.charAt(0) === '0') return '+49' + d.slice(1);
+    return d.charAt(0) === '+' ? d : '+' + d;
+  }
+  /* Zugangs-Karte (13.11., Ramy): Wer ohne persönlichen Link kommt (Reel, Empfehlung, Merk-Link), sieht Kapitel 1 und 2 frei
+     (in Kapitel 1 ist nur Anna, Hischam spricht erst in Kapitel 2 richtig). Vor Kapitel 3 ist die Anmeldung Pflicht:
+     Vorname, E-Mail, Telefon und das Häkchen. Kein „Später“, kein zweites Tor. */
+  var ZUGANG_TEXT = 'Ich möchte meinen Zugang und Erinnerungen zum Kurs per E-Mail und WhatsApp bekommen. Dafür speichert Hischams Team, wie weit ich im Kurs bin. Abmelden geht jederzeit.';
   function zugangPruefen(){
     if(!D.webhook || bekannt() || $('zugang')) return;
-    if(akt >= 3 ? st.tor4 : (akt >= 1 ? st.tor2 : true)) return;
+    if(akt < 2) return;
     if(vid){ try{ vid.pause(); }catch(e){} }
     var z = document.createElement('div'); z.id = 'zugang'; z.className = 'zugang';
-    z.innerHTML = '<form class="zblatt" novalidate><div class="ck">Dein persönlicher Zugang</div><h3>Damit du jederzeit genau hier weiterschauen kannst</h3>'
-      + '<p>Wohin dürfen wir dir deinen Zugang schicken? Kein Passwort, nur ein Link.</p>'
+    /* Ramy 13.11.: so einfach wie möglich und begründet, wofür die Daten sind (direkt weiterschauen). Vorausgefüllt, was wir schon wissen. */
+    z.innerHTML = '<form class="zblatt" novalidate><div class="ck">Kurz eintragen, dann geht es direkt weiter</div><h3>' + (name ? esc(name) + ', d' : 'D') + 'amit du genau hier weiterschauen kannst</h3>'
+      + '<p>Wir merken uns deine Stelle und schicken dir deinen Link per WhatsApp. So machst du jederzeit genau hier weiter, auch am Handy. Kein Passwort.</p>'
       + '<label>Vorname<input name="n" autocomplete="given-name" required value="' + esc(name) + '"></label>'
-      + '<label>E-Mail<input name="e" type="email" autocomplete="email" inputmode="email" required></label>'
-      + '<label>Handy für WhatsApp <span>(freiwillig)</span><input name="t" type="tel" autocomplete="tel" inputmode="tel"></label>'
-      + '<label class="ja"><input type="checkbox" name="ok" required> <span>Ich möchte meinen Zugang und Erinnerungen zum Kurs per E-Mail bekommen (und per WhatsApp, wenn ich eine Nummer angebe). Dafür speichert Hischams Team, wie weit ich im Kurs bin. Abmelden geht jederzeit. <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></span></label>'
-      + '<div class="zfehl" hidden></div><button class="gross" type="submit">Zugang sichern und weiterschauen</button>'
-      + '<button type="button" class="spaeter">Später</button></form>';
+      + '<label>E-Mail<input name="e" type="email" autocomplete="email" inputmode="email" required value="' + esc(st.mail || '') + '"></label>'
+      + '<label>Handy<input name="t" type="tel" autocomplete="tel" inputmode="tel" required placeholder="z. B. 0171 2345678" value="' + esc(st.tel || '') + '"></label>'
+      + '<label class="ja"><input type="checkbox" name="ok" required> <span>' + ZUGANG_TEXT + ' <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></span></label>'
+      + '<div class="zfehl" hidden></div><button class="gross" type="submit">▶ Jetzt weiterschauen</button></form>';
     document.body.appendChild(z);
     var f = z.querySelector('form');
-    z.querySelector('.spaeter').onclick = function(){ if(akt >= 3) st.tor4 = 1; else st.tor2 = 1; speichern(); z.remove(); if(vid) vid.play(); };
     f.onsubmit = function(ev){
       ev.preventDefault();
-      var n = f.n.value.trim(), e = f.e.value.trim(), t = f.t.value.trim(), fehl = z.querySelector('.zfehl');
-      var msg = !n ? 'Bitte deinen Vornamen eintragen.' : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) ? 'Bitte prüf deine E-Mail-Adresse.' : !f.ok.checked ? 'Bitte setz das Häkchen, damit wir dir den Zugang schicken dürfen.' : '';
+      var n = f.n.value.trim(), e = f.e.value.trim(), t = f.t.value.trim(), ziffern = t.replace(/\D/g, ''), fehl = z.querySelector('.zfehl');
+      var msg = !n ? 'Bitte deinen Vornamen eintragen.' : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) ? 'Bitte prüf deine E-Mail-Adresse.' : (ziffern.length < 9 || ziffern.length > 15) ? 'Bitte prüf deine Handynummer.' : !f.ok.checked ? 'Bitte setz das Häkchen, damit wir dir den Zugang schicken dürfen.' : '';
       if(msg){ fehl.hidden = false; fehl.textContent = msg; return; }
-      st.url_n = n; name = n.replace(/[^\wäöüÄÖÜß\- ]/g,'').slice(0,30); st.mail = e; st.tel = t; st.tor2 = st.tor4 = 1; speichern(); kontaktMerken();
-      melde('zugang_angefordert', {}, true);
+      st.url_n = n; name = n.replace(/[^\wäöüÄÖÜß\- ]/g,'').slice(0,30); st.mail = e; st.tel = e164(t); st.wa = 'ja'; speichern(); kontaktMerken();
+      melde('zugang_angefordert', {einwilligung: ZUGANG_TEXT}, true);
       z.remove(); if(vid) vid.play();
+    };
+  }
+  /* WhatsApp-Frage (13.11., Ramy): Wer über den persönlichen Link kommt (z. B. Workshop-Absage), ist bekannt und sieht die
+     Zugangs-Karte nie. Die Nummer haben wir oft aus dem Workshop, aber ohne WhatsApp-Einwilligung. Deshalb vor Kapitel 3
+     (wie die Zugangs-Karte, Ramy 13.11.) eine kleine, freiwillige Frage: Nummer + Häkchen → Meldung „whatsapp_ja“ mit Kontakt-ID. GHL setzt Nummer, Schlagwort und Notiz
+     (Beleg der Einwilligung) und startet „Kompaktkurs: Zugang“ mit der WhatsApp-Vorlage. ?w=1 im Link = Einwilligung liegt schon vor. */
+  var WA_TEXT = 'Ja, schickt mir meinen Kurs-Zugang und Erinnerungen zum Kurs auch per WhatsApp. Abmelden geht jederzeit, eine kurze Antwort „Stopp“ reicht.';
+  if(q.get('w') === '1') { st.wa = 'ja'; speichern(); }
+  function waPruefen(){
+    if(!D.webhook || !bekannt() || st.wa || $('zugang') || $('waFrage')) return;
+    if(akt < 2) return;
+    if(vid){ try{ vid.pause(); }catch(e){} }
+    var z = document.createElement('div'); z.id = 'waFrage'; z.className = 'zugang';
+    z.innerHTML = '<form class="zblatt" novalidate><div class="ck">Kleine Frage</div><h3>' + (name ? esc(name) + ', d' : 'D') + 'einen Link auch per WhatsApp?</h3>'
+      + '<p>Dann hast du deine Stelle immer im Handy und kannst mit einem Tipp genau hier weiterschauen.</p>'
+      + '<label>Handy<input name="t" type="tel" autocomplete="tel" inputmode="tel" placeholder="z. B. 0171 2345678" value="' + esc(st.tel || '') + '"></label>'
+      + '<label class="ja"><input type="checkbox" name="ok"> <span>' + WA_TEXT + ' <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></span></label>'
+      + '<div class="zfehl" hidden></div><button class="gross" type="submit">Ja, per WhatsApp</button>'
+      + '<button type="button" class="spaeter">Nein danke, weiterschauen</button></form>';
+    document.body.appendChild(z);
+    var f = z.querySelector('form');
+    z.querySelector('.spaeter').onclick = function(){ st.wa = 'nein'; speichern(); melde('whatsapp_nein'); z.remove(); if(vid) vid.play(); };
+    f.onsubmit = function(ev){
+      ev.preventDefault();
+      var t = f.t.value.trim(), fehl = z.querySelector('.zfehl'), ziffern = t.replace(/\D/g, '');
+      var msg = ziffern.length < 9 || ziffern.length > 15 ? 'Bitte prüf deine Handynummer.' : !f.ok.checked ? 'Bitte setz das Häkchen, damit wir dir per WhatsApp schreiben dürfen.' : '';
+      if(msg){ fehl.hidden = false; fehl.textContent = msg; return; }
+      st.tel = e164(t); st.wa = 'ja'; speichern(); kontaktMerken();
+      /* Mit Kontakt-ID findet WF1 den Kontakt direkt (Zweig „WhatsApp ja“). Nur per E-Mail bekannt (Typ-Test, Workshop-Formular):
+         gleiche Meldung wie die Zugangs-Karte, GHL findet den Kontakt dann über E-Mail/Nummer (Zweig „Zugang neu“). */
+      melde(st.url_c ? 'whatsapp_ja' : 'zugang_angefordert', {einwilligung: WA_TEXT}, true);
+      f.innerHTML = '<div class="ck">Danke</div><h3>Super, gleich kommt dein Link per WhatsApp.</h3><button class="gross" type="button">Weiterschauen</button>';
+      f.querySelector('button').onclick = function(){ z.remove(); if(vid) vid.play(); };
     };
   }
   function uhr(t){ t = Math.floor(t); return Math.floor(t/60) + ':' + ('0' + (t%60)).slice(-2); }
