@@ -417,13 +417,15 @@ window.KURS = {
     if(!D.webhook || !bekannt()) return;
     if(!immer){ if(gemeldet[ereignis]) return; gemeldet[ereignis] = 1; st.gemeldet = gemeldet; speichern(); }
     try{
-      /* GHL liest text/plain nicht, aber Parameter in der Adresse (getestet 10.11.). So klappt es auch beim Schließen des Tabs. */
+      /* 13.11. live gemessen: GHL liest Parameter in der Adresse NICHT mehr (Kontakt kam leer an), text/plain auch nicht.
+         Formular-Format (application/x-www-form-urlencoded) und JSON gehen. Formular ist für sendBeacon erlaubt,
+         darum klappt es auch beim Schließen des Tabs. */
       var w = Object.assign({kontakt: st.url_c || '', email: st.mail || '', telefon: st.tel || '', vorname: name, ereignis: ereignis,
         muster: mein.join('-'), fassung: mitPreis ? 'mit_preis' : 'ohne_preis', preis: mitPreis ? '1' : '0', fortschritt: anzahl(), quelle: st.quelle || '', von: st.von || '',
         datum: new Date().toISOString()}, stand(), daten || {});
-      var url = D.webhook + (D.webhook.indexOf('?') < 0 ? '?' : '&') + new URLSearchParams(w).toString();
-      if(navigator.sendBeacon && navigator.sendBeacon(url)) return;
-      fetch(url, {method:'POST', keepalive: true, mode:'no-cors'});
+      var body = new URLSearchParams(w);
+      if(navigator.sendBeacon && navigator.sendBeacon(D.webhook, body)) return;
+      fetch(D.webhook, {method:'POST', body: body, keepalive: true, mode:'no-cors'});
     }catch(e){}
   }
   /* Sitzungsende: wenn sie den Tab schließt, das Handy sperrt oder die App wechselt.
