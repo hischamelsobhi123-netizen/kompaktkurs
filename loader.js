@@ -9,7 +9,8 @@
   for (var e = box.parentNode; e && e !== document.body; e = e.parentNode) {
     if (e.style) { [['padding','0'],['margin','0'],['max-width','none'],['width','100%'],['overflow','visible']].forEach(function(p){ e.style.setProperty(p[0], p[1], 'important'); }); }
   }
-  fetch('https://hischamelsobhi123-netizen.github.io/kompaktkurs/index.html', {cache: 'no-cache'}).then(function(r){ return r.text(); }).then(function(html){
+  /* Kurs v6 seit 17.11. Zurück auf den alten Kurs: v6/index.html → index.html */
+  fetch('https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/index.html', {cache: 'no-cache'}).then(function(r){ return r.text(); }).then(function(html){
     var d = new DOMParser().parseFromString(html, 'text/html');
     d.head.querySelectorAll('style, meta[name="robots"]').forEach(function(n){ document.head.appendChild(n.cloneNode(true)); });
     Array.prototype.forEach.call(d.body.childNodes, function(n){ box.appendChild(document.importNode(n, true)); });

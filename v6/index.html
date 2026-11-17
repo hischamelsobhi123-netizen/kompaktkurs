@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kompaktkurs | Hischam El-Sobhi</title>
+<meta name="robots" content="noindex">
+<!-- Kompaktkurs für Typ-Test- und Kalt-Leads (Auftrag Ramy 09.11.2026), Fassung 3: „um Welten simpler“.
+     Zielgruppe überwiegend Frauen 35–60. Prinzip: Jedes Kapitel ist EIN Bildschirm. Unten immer dieselben zwei Knöpfe
+     (klein „Zurück“, groß „Weiter“). Die Zurück-Taste des Handys geht ein Kapitel zurück (history.pushState).
+     Persönlicher Link: ?n=Vorname&m=B&c=<GHL-Kontakt-ID>&p=0|1 (p=0: Check ohne Preis, Vergleichstest).
+     Fortschritt bleibt im Browser (localStorage). Optional: Meldungen an GHL (kurs-daten.js → webhook). -->
+<style>
+  :root{
+    --ink:#132019; --ink2:#22332c; --muted:#45554e; --line:#dfe8e3; --soft:#f4f8f6; --soft2:#e3efe8;
+    --green:#1f9a59; --green-d:#157443; --green-bg:#e7f5ec; --dark:#0d2a1e; --dark2:#123c2a; --gold:#e3b520; --mint:#7fe0a5;
+    --sans:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:18px;}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  button{font-family:inherit;}
+  img{max-width:100%;display:block;}
+  .wrap{max-width:820px;margin:0 auto;padding:0 18px;}
+  [hidden]{display:none !important;}
+
+  /* ---------- START: nur Begrüßung und ein Knopf ---------- */
+  .start{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px 20px 40px;background:radial-gradient(900px 600px at 50% 0%,#e2f2e8,#fff 70%);}
+  .start .foto{width:150px;height:150px;border-radius:50%;object-fit:cover;object-position:50% 20%;border:6px solid #fff;box-shadow:0 18px 40px rgba(13,42,30,.25);}
+  .start .hallo{font-size:clamp(1.9rem,7vw,2.8rem);font-weight:800;line-height:1.1;margin-top:22px;}
+  .start .satz{font-size:1.15rem;color:var(--muted);max-width:560px;margin-top:14px;}
+  .start .muster{display:inline-flex;align-items:center;gap:10px;margin-top:16px;background:var(--dark);color:#fff;border-radius:40px;padding:8px 18px 8px 8px;font-weight:700;font-size:1rem;}
+  .start .muster b{background:#fff;color:var(--green-d);font-family:Georgia,serif;border-radius:30px;padding:2px 12px;}
+  .start .gross{max-width:460px;margin-top:28px;}
+  .start .klein{margin-top:16px;color:var(--muted);font-size:.95rem;}
+
+  .tutknopf{margin-top:14px;background:#fff;border:2px solid var(--line);border-radius:40px;padding:12px 20px;font-size:1.02rem;font-weight:700;color:var(--ink2);cursor:pointer;}
+  .tutknopf span{color:var(--muted);font-weight:600;}
+  .tutfenster{position:fixed;inset:0;z-index:60;background:rgba(5,15,10,.88);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;}
+  .tutfenster video{width:100%;max-width:960px;border-radius:14px;background:#000;}
+  .tutfenster button{margin-top:16px;max-width:420px;}
+
+  /* ---------- Der große Knopf ---------- */
+  .gross{display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;min-height:70px;background:var(--green);color:#fff;border:0;border-radius:18px;padding:14px 20px;font-size:1.3rem;font-weight:800;line-height:1.2;cursor:pointer;box-shadow:0 12px 28px rgba(31,154,89,.32);text-decoration:none;text-align:center;}
+  .gross small{display:block;font-size:.85rem;font-weight:600;opacity:.92;margin-top:3px;}
+  .gross:active{transform:scale(.99);}
+  .gross:focus-visible,.zur:focus-visible{outline:4px solid var(--gold);outline-offset:3px;}
+
+  /* ---------- KAPITEL-BILDSCHIRM ---------- */
+  .kopf{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.97);border-bottom:1px solid var(--line);}
+  .kopf .in{max-width:820px;margin:0 auto;padding:10px 18px 12px;}
+  .kopf .zeile{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:800;font-size:.95rem;color:var(--green-d);}
+  .kopf .alle{background:none;border:2px solid var(--line);border-radius:30px;padding:6px 14px;font-weight:700;font-size:.9rem;color:var(--ink2);cursor:pointer;}
+  .kopf .kk{display:flex;gap:6px;flex-shrink:0;}
+  .kopf .alle,#kNr{white-space:nowrap;}
+  @media(max-width:420px){ .kopf .alle{padding:6px 10px;font-size:.84rem;} .kopf .zeile{font-size:.88rem;} }
+  .kopf a.termin{text-decoration:none;color:var(--green-d);border-color:var(--green);background:var(--green-bg);}
+  /* Termin-Karte nach Kapitel 4, 6, 8 · Teilen · Erinnern · Zugang (10.11.) */
+  .tkarte{margin-top:22px;background:linear-gradient(160deg,var(--dark2),var(--dark));color:#fff;border-radius:18px;padding:22px 20px;}
+  .tkarte .ck{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--mint);}
+  .tkarte h3{font-size:1.3rem;font-weight:800;line-height:1.25;margin-top:4px;}
+  .tkarte p{color:rgba(255,255,255,.88);font-size:1.02rem;margin-top:8px;}
+  .tkarte .gross{margin-top:16px;}
+  .teilk{margin-top:22px;border:2px solid var(--line);border-radius:16px;padding:18px;text-align:center;}
+  .teilk b{font-size:1.1rem;} .teilk p{color:var(--muted);margin-top:4px;}
+  .teilk .tk{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px;}
+  .teilk .twa,.teilk .tkopie{font:inherit;font-weight:800;font-size:1rem;border-radius:40px;padding:12px 20px;cursor:pointer;text-decoration:none;}
+  .teilk .twa{background:#25d366;color:#fff;border:0;} .teilk .tkopie{background:var(--soft);color:var(--ink);border:2px solid var(--line);}
+  .erinner{margin-top:14px;background:#fff8dc;border:2px solid #f0d36a;border-radius:16px;padding:16px 18px;}
+  .erinner b{font-size:1.1rem;} .erinner p{color:var(--ink2);margin-top:2px;}
+  .erinner .ew{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;}
+  .erinner .ew button{flex:1 1 140px;min-height:52px;border:2px solid #e3c24c;background:#fff;border-radius:12px;font-weight:800;font-size:1rem;cursor:pointer;color:var(--ink);}
+  .erinner .ew button.an{background:var(--green);border-color:var(--green);color:#fff;}
+  .erinner .eok{margin-top:12px;font-weight:700;color:var(--green-d);}
+  .erinner .eok a{color:var(--green-d);}
+  .zugang{position:fixed;inset:0;z-index:70;background:rgba(5,15,10,.72);display:flex;padding:14px;overflow:auto;}
+  .zblatt{margin:auto;background:#fff;border-radius:22px;max-width:520px;width:100%;padding:22px 18px;box-shadow:0 30px 70px rgba(0,0,0,.35);}
+  @media(max-width:520px){ .zblatt h3{font-size:1.2rem;} .zblatt label{margin-top:9px;} .zblatt input:not([type=checkbox]){padding:10px 12px;} }
+  .zblatt .ck{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .zblatt h3{font-size:1.35rem;font-weight:800;line-height:1.25;margin-top:4px;}
+  .zblatt > p{color:var(--muted);margin-top:6px;}
+  .zblatt label{display:block;font-weight:700;margin-top:12px;font-size:1rem;}
+  .zblatt label span{font-weight:500;color:var(--muted);}
+  .zblatt input:not([type=checkbox]){width:100%;margin-top:4px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;font-size:1.1rem;}
+  .zblatt .ja{display:flex;gap:10px;align-items:flex-start;font-weight:500;font-size:.92rem;color:var(--ink2);}
+  .zblatt .ja input{width:24px;height:24px;flex:0 0 24px;margin-top:2px;accent-color:var(--green);}
+  .zblatt .ja span{color:var(--ink2);}
+  .zblatt .zfehl{margin-top:12px;background:#fdecec;color:#8a1c1c;border-radius:10px;padding:10px 12px;font-weight:700;}
+  .zblatt .gross{margin-top:16px;}
+  .zblatt .spaeter{display:block;margin:10px auto 0;background:none;border:0;color:var(--muted);text-decoration:underline;font-size:1rem;cursor:pointer;padding:6px;}
+  .punkte{display:flex;gap:5px;margin-top:8px;}
+  .punkte i{flex:1;height:9px;border-radius:9px;background:var(--soft2);}
+  .punkte i.ok{background:var(--green);}
+  .punkte i.jetzt{background:var(--gold);}
+  .kapitel{padding:20px 0 150px;}
+  .kapitel h1{font-size:clamp(1.55rem,5.5vw,2.2rem);line-height:1.15;font-weight:800;}
+  .player{position:relative;margin-top:16px;border-radius:16px;overflow:hidden;background:#000;box-shadow:0 18px 44px rgba(13,42,30,.25);}
+  .player .ar{position:relative;padding-top:56.25%;}
+  .player video{position:absolute;inset:0;width:100%;height:100%;background:#000;}
+  .vstart{position:absolute;inset:0;border:0;cursor:pointer;background-size:cover;background-position:center;width:100%;}
+  .vstart::after{content:"";position:absolute;inset:0;background:rgba(10,26,20,.35);}
+  .vstart .play{position:absolute;left:50%;top:50%;transform:translate(-50%,-55%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:1.15rem;text-shadow:0 2px 10px rgba(0,0,0,.6);}
+  .vstart .play span{width:100px;height:100px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(0,0,0,.4);}
+  .vstart .play span::before{content:"";border-style:solid;border-width:19px 0 19px 30px;border-color:transparent transparent transparent var(--green-d);margin-left:7px;}
+  .ende{position:absolute;inset:0;z-index:5;background:rgba(10,30,22,.94);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:14px 22px;}
+  .ende .hak{font-size:1.3rem;font-weight:800;}
+  .ende .gross{max-width:440px;margin-top:12px;}
+  .ende .tlink{display:inline-block;margin-top:10px;background:rgba(255,255,255,.14);border:2px solid rgba(255,255,255,.35);color:#fff;border-radius:30px;padding:7px 16px;font-weight:800;font-size:1rem;text-decoration:none;}
+  .ende .unten{display:flex;gap:14px;justify-content:center;align-items:center;flex-wrap:wrap;margin-top:8px;} .ende .unten .tlink,.ende .unten .nochmal{margin-top:0;}
+  .eselbst{margin-top:12px;font-size:1rem;color:var(--ink2);} .eselbst a{font-weight:800;color:var(--green-d);}
+  .mwahl{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:460px;}
+  .mwahl p{width:100%;font-weight:700;color:var(--ink2);}
+  .mwahl button{flex:1 1 130px;min-height:54px;border:2px solid var(--line);background:#fff;border-radius:14px;font:inherit;font-weight:700;font-size:1rem;cursor:pointer;color:var(--ink2);}
+  .mwahl button b{font-family:Georgia,serif;color:var(--green-d);margin-right:4px;}
+  .start .zweit{display:inline-block;margin-top:14px;background:none;border:0;color:var(--green-d);font-weight:800;font-size:1.05rem;text-decoration:underline;cursor:pointer;padding:6px;}
+  .ende .nochmal{background:none;border:0;color:#fff;text-decoration:underline;font-size:1rem;margin-top:10px;cursor:pointer;padding:6px;}
+  @media(max-width:560px){ .player{border-radius:0;margin-left:-18px;margin-right:-18px;} .ende .hak{font-size:1.05rem;} .ende .gross{min-height:54px;font-size:1.05rem;margin-top:6px;} .ende .gross small{display:none;} }
+  .txt{color:var(--muted);font-size:1.05rem;margin-top:16px;}
+  .merk{margin-top:22px;background:var(--dark);color:#fff;border-radius:16px;padding:18px 20px;font-size:1.12rem;}
+  .merk .k{font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mint);font-weight:800;display:block;margin-bottom:4px;}
+  .merk q{font-family:Georgia,serif;font-style:italic;quotes:"„" "“";}
+
+  /* Unten fest: Zurück (klein) und Weiter (groß). Immer gleich, immer an derselben Stelle. */
+  .leiste{position:fixed;left:0;right:0;bottom:0;z-index:30;background:rgba(255,255,255,.97);border-top:1px solid var(--line);padding:12px 14px calc(12px + env(safe-area-inset-bottom));box-shadow:0 -10px 30px rgba(13,42,30,.08);}
+  .leiste .in{max-width:820px;margin:0 auto;display:flex;gap:10px;align-items:stretch;}
+  .zur{flex:0 0 auto;min-width:96px;background:#fff;border:2px solid var(--line);border-radius:16px;font-size:1.05rem;font-weight:700;color:var(--ink2);cursor:pointer;padding:0 14px;}
+  .zur:disabled{opacity:.35;cursor:default;}
+  .leiste .gross{flex:1;min-height:64px;font-size:1.2rem;box-shadow:none;}
+  /* Termin ab Kapitel 3 immer sichtbar (Ramy 13.11.: „PERMANENT im Sichtbarkeitsbereich, darf nicht untergehen“) */
+  .tbar{display:flex;align-items:center;justify-content:center;gap:8px;max-width:820px;margin:0 auto 10px;min-height:52px;padding:10px 14px;border-radius:14px;background:var(--gold);color:#1d1a0c;font-weight:800;font-size:1.08rem;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 6px 18px rgba(0,0,0,.12);}
+  .tbar small{display:block;font-weight:600;font-size:.82rem;opacity:.95;}
+  .tbar[hidden]{display:none;}
+  body.mitTermin .kapitel{padding-bottom:220px;}
+  body.mitTermin .foot{padding-bottom:230px;}
+
+  /* Mitmachen (freiwillig) */
+  .aufgabe{margin-top:22px;border:2px solid var(--green-bg);background:#fbfdfc;border-radius:16px;padding:18px;}
+  .aufgabe .frei{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .aufgabe h3{font-size:1.15rem;font-weight:800;margin-top:2px;line-height:1.3;}
+  .aufgabe > p{color:var(--muted);font-size:1rem;margin-top:4px;}
+  .aufgabe textarea{width:100%;margin-top:12px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font:inherit;font-size:1.1rem;resize:vertical;}
+  .haken{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:14px;}
+  .haken label{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1rem;font-weight:700;cursor:pointer;user-select:none;min-height:54px;}
+  .haken input{accent-color:var(--green);width:22px;height:22px;flex:0 0 22px;}
+  .haken label.an{border-color:var(--green);background:var(--green-bg);color:var(--green-d);}
+  .antwort{margin-top:14px;background:var(--soft);border-radius:12px;padding:12px 14px;font-size:1rem;color:var(--ink2);display:none;}
+  .antwort.da{display:block;}
+  .wahl{margin-top:12px;}
+  .wahl .z{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line);}
+  .wahl .z:first-child{border-top:0;}
+  .wahl .z b{font-size:1.02rem;}
+  .wahl .k3{display:flex;gap:6px;}
+  .wahl .k3 button{min-width:78px;min-height:48px;border:2px solid var(--line);background:#fff;border-radius:10px;font-weight:700;font-size:.95rem;cursor:pointer;color:var(--ink2);}
+  .wahl .k3 button.an{border-color:var(--green);background:var(--green);color:#fff;}
+  .wahl .k3 button.an.s{border-color:#c98f00;background:#f5d466;color:#3a2c00;}
+  @media(max-width:520px){ .wahl .z{grid-template-columns:1fr;} .wahl .k3 button{flex:1;} }
+  .muster3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;}
+  @media(max-width:700px){ .muster3{grid-template-columns:1fr;} }
+  .mu{background:#fff;border:2px solid var(--line);border-radius:14px;padding:16px;}
+  .mu .bu{width:44px;height:44px;border-radius:12px;background:var(--dark);color:var(--mint);font-family:Georgia,serif;font-weight:700;font-size:1.3rem;display:flex;align-items:center;justify-content:center;}
+  .mu h4{margin-top:10px;font-size:1.1rem;font-weight:800;}
+  .mu p{color:var(--muted);font-size:1rem;margin-top:3px;}
+  .mu.ich{border-color:var(--green);box-shadow:0 12px 30px rgba(31,154,89,.18);}
+  .mu .tag{display:none;margin-top:8px;font-size:.85rem;font-weight:800;color:var(--green-d);}
+  .mu.ich .tag{display:block;}
+  .rechner{display:grid;gap:12px;margin-top:12px;}
+  .rechner label{font-size:1rem;font-weight:700;color:var(--ink2);display:block;}
+  .rechner input{width:100%;margin-top:4px;border:2px solid var(--line);border-radius:12px;padding:12px 14px;font-size:1.15rem;font-family:inherit;}
+  .summe{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;}
+  .summe div{flex:1 1 160px;background:var(--dark);color:#fff;border-radius:12px;padding:12px 14px;}
+  .summe b{display:block;font-size:1.5rem;color:var(--mint);font-variant-numeric:tabular-nums;}
+  .summe span{font-size:.9rem;opacity:.85;}
+
+  /* Check */
+  .check{margin-top:22px;background:#fff;border:3px solid var(--green);border-radius:18px;padding:22px 20px;box-shadow:0 12px 30px rgba(31,154,89,.14);}
+  .check .ck{font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .check h3{font-size:1.35rem;font-weight:800;line-height:1.25;margin-top:2px;}
+  .check > p{color:var(--muted);font-size:1.02rem;margin-top:6px;}
+  .check ul{list-style:none;margin-top:12px;}
+  .check li{position:relative;padding:6px 0 6px 34px;font-size:1.05rem;font-weight:600;}
+  .check li::before{content:"✓";position:absolute;left:0;top:7px;width:24px;height:24px;border-radius:50%;background:var(--green);color:#fff;font-size:.8rem;display:flex;align-items:center;justify-content:center;}
+  .check .preis{margin-top:14px;background:var(--green-bg);border-radius:12px;padding:12px 14px;font-size:1rem;color:var(--ink2);}
+  .check .preis b{font-size:1.7rem;color:var(--green-d);margin-right:6px;}
+  .check .gross{margin-top:16px;}
+  .check .danach{margin-top:10px;font-size:.98rem;color:var(--muted);}
+
+  /* Abschluss */
+  .schluss{padding:30px 0 150px;}
+  .schluss .box{background:linear-gradient(160deg,var(--dark2),var(--dark));color:#fff;border-radius:22px;padding:30px 22px;text-align:center;}
+  .schluss .box h1{font-weight:800;font-size:clamp(1.4rem,5vw,2rem);line-height:1.15;}
+  .schluss .box h1 span{color:var(--mint);}
+  .schluss .box p{color:rgba(255,255,255,.9);max-width:600px;margin:12px auto 0;font-size:1.05rem;}
+  .schluss .gross.gold{background:var(--gold);color:#1d1a0c;box-shadow:none;margin-top:22px;}
+
+  /* Kapitelübersicht als Fenster */
+  .uebersicht{position:fixed;inset:0;z-index:50;background:rgba(10,26,20,.55);display:flex;align-items:flex-end;justify-content:center;}
+  .uebersicht .blatt{background:#fff;width:100%;max-width:640px;max-height:88vh;overflow:auto;border-radius:22px 22px 0 0;padding:18px 0 calc(18px + env(safe-area-inset-bottom));}
+  .uebersicht h2{font-size:1.2rem;padding:0 20px 10px;display:flex;justify-content:space-between;align-items:center;}
+  .uebersicht h2 button{background:none;border:0;font-size:1.6rem;cursor:pointer;color:var(--muted);padding:0 6px;}
+  .kap{display:flex;gap:14px;align-items:center;width:100%;text-align:left;background:#fff;border:0;border-top:1px solid var(--line);padding:14px 20px;cursor:pointer;min-height:64px;}
+  .kap .n{flex:0 0 38px;height:38px;border-radius:50%;background:var(--soft2);color:var(--green-d);font-weight:800;display:flex;align-items:center;justify-content:center;}
+  .kap.ok .n{background:var(--green);color:#fff;}
+  .kap.aktiv{background:var(--green-bg);}
+  .kap b{display:block;font-size:1.02rem;line-height:1.3;color:var(--ink);}
+  .kap span.d{font-size:.9rem;color:var(--muted);}
+
+  .foot{background:#0a1c14;color:rgba(255,255,255,.75);font-size:.88rem;padding:24px 20px 140px;text-align:center;}
+  .foot a{color:rgba(255,255,255,.9);text-decoration:none;margin:0 7px;}
+  .foot .hint{margin-top:10px;font-size:.8rem;opacity:.75;max-width:720px;margin-left:auto;margin-right:auto;}
+
+  /* Muster-Test im Kurs (17.11., Ramy: „der Test soll Teil des Kurses sein“, nach Kapitel 1) */
+  .ttest{padding:20px 0 60px;}
+  body.imTest .leiste{display:none;}
+  .tk{background:#fff;border:2px solid var(--green-bg);border-radius:20px;padding:22px 18px;box-shadow:0 14px 34px rgba(13,42,30,.08);}
+  .tk .tkopf{display:flex;justify-content:space-between;align-items:center;gap:10px;font-weight:800;color:var(--green-d);font-size:.95rem;}
+  .tk .tkopf button{background:none;border:0;color:var(--muted);font:inherit;font-weight:700;cursor:pointer;padding:4px 0;display:none;flex:0 0 auto;}
+  .tk .tkopf button.an{display:inline;}
+  .tk .tbal{height:9px;border-radius:9px;background:var(--soft2);margin-top:10px;overflow:hidden;}
+  .tk .tbal i{display:block;height:100%;background:var(--green);border-radius:9px;transition:width .3s;}
+  .tk .tk-k{margin-top:18px;font-size:.8rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);}
+  .tk .tk-q{margin-top:8px;font-size:clamp(1.25rem,4.8vw,1.55rem);font-weight:800;line-height:1.3;}
+  .tk .tk-p{margin-top:8px;color:var(--muted);font-size:1.05rem;}
+  .tk .tk-opts{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+  .tk .tk-opts.zahl{flex-direction:row;flex-wrap:wrap;gap:8px;}
+  .tk .tk-opts.zahl button{flex:1 0 16%;min-width:48px;}
+  .tk .tk-opts button,.tk .tk-chips button{min-height:58px;border:2px solid var(--line);background:#fff;border-radius:14px;font:inherit;font-size:1.1rem;font-weight:700;color:var(--ink);cursor:pointer;padding:10px 14px;text-align:left;}
+  .tk .tk-opts.zahl button{text-align:center;padding:10px 4px;}
+  .tk .tk-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px;}
+  .tk .tk-chips button{min-height:50px;font-size:1rem;}
+  .tk button.sel{background:var(--green);border-color:var(--green);color:#fff;}
+  .tk .tk-lr{display:flex;justify-content:space-between;color:var(--muted);font-size:.9rem;margin-top:6px;}
+  .tk .gross{margin-top:20px;}
+  .tk .gross:disabled{opacity:.45;cursor:default;}
+  .tk .tk-idee{margin-top:16px;background:var(--green-bg);border-radius:16px;padding:18px;}
+  .tk .tk-idee .tk-q{margin-top:0;}
+  .terg{text-align:center;}
+  .terg .bu{display:inline-flex;align-items:center;justify-content:center;min-width:86px;height:86px;padding:0 14px;border-radius:50px;background:var(--dark);color:#fff;font-family:Georgia,serif;font-size:2.2rem;font-weight:700;margin-top:6px;}
+  .terg h2{font-size:clamp(1.4rem,5.4vw,1.9rem);line-height:1.2;margin-top:12px;}
+  .terg .tk-p{max-width:560px;margin-left:auto;margin-right:auto;}
+  .terg .player{text-align:left;}
+  .terg .vtitel{margin-top:20px;font-weight:800;color:var(--ink2);}
+</style>
+</head>
+<body>
+
+<!-- START -->
+<section class="start" id="start">
+  <img class="foto" src="https://hischamelsobhi123-netizen.github.io/relounge-landing/assets-enm/arzt-hischam.webp" alt="Hischam El-Sobhi">
+  <div class="hallo" id="hallo">Schön, dass du da bist.</div>
+  <p class="satz" id="startSatz"></p>
+  <div><span class="muster" id="muster" hidden><b id="musterBu">B</b><span id="musterT"></span></span></div>
+  <button class="gross" id="losKnopf"><span id="losT">▶ Los geht's</span><small id="losS"></small></button>
+  <button class="zweit" id="zweitKnopf" hidden></button>
+  <button class="tutknopf" id="tutKnopf" hidden>▶ So funktioniert der Kurs <span>· 30 Sekunden</span></button>
+  <div class="klein" id="startKlein"></div>
+</section>
+
+<!-- KAPITEL -->
+<div id="ansicht" hidden>
+  <div class="kopf"><div class="in">
+    <div class="zeile"><span id="kNr">Kapitel 1 von 10</span><span class="kk"><a class="alle termin" data-termin href="#">📅 Termin</a><button class="alle" id="alleKnopf">Alle Kapitel</button></span></div>
+    <div class="punkte" id="punkte"></div>
+  </div></div>
+  <div class="wrap">
+    <section class="kapitel" id="kapitel">
+      <h1 id="kTitel"></h1>
+      <div class="player"><div class="ar" id="pbox"></div></div>
+      <div id="kVorne"></div>
+      <p class="txt" id="kText"></p>
+      <div id="kMerk"></div>
+      <div id="kAufgabe"></div>
+      <div id="kCheck"></div>
+    </section>
+    <section class="ttest" id="ttest" hidden><div class="tk" id="tKarte"></div></section>
+    <section class="schluss" id="schluss" hidden>
+      <div class="box">
+        <h1 id="sH"></h1>
+        <p id="sP"></p>
+      </div>
+      <div id="sCheck"></div>
+      <a class="gross gold" id="sKnopf" href="#"></a>
+      <div id="sTeilen"></div>
+      <p class="txt" style="text-align:center">Du kannst jedes Kapitel jederzeit nochmal ansehen: oben auf „Alle Kapitel“ tippen.</p>
+    </section>
+  </div>
+  <div class="foot">
+    <a href="https://hischamelsobhi.de/impressum" target="_blank" rel="noopener">Impressum</a> ·
+    <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a>
+    <div class="hint">Dieser Kurs dient der Information und ersetzt keine ärztliche Untersuchung. Keine Heilversprechen. Erfahrungen einzelner Menschen sind nicht übertragbar, jeder Körper ist anders.</div>
+  </div>
+  <div class="leiste">
+    <a class="tbar" id="tbar" data-termin href="#" hidden><span>📅 Kostenloses Gespräch wählen<small>per Video · etwa 45 Minuten</small></span></a>
+    <div class="in">
+    <button class="zur" id="zurueck">‹ Zurück</button>
+    <button class="gross" id="weiter"></button>
+  </div></div>
+</div>
+
+<div class="uebersicht" id="uebersicht" hidden><div class="blatt">
+  <h2>Alle Kapitel <button id="zu" aria-label="Schließen">×</button></h2>
+  <div id="liste"></div>
+</div></div>
+
+<script>
+/* Automatisch von bauen.py: Dauer, Video, Vorschau und Zeitmarken je Kapitel. */
+window.KURS_BAU = {"v6k1": {"dauer": 377, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k1.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k1.jpg", "marken": [[0.0, "Anna, 53"], [84.7, "Bin ich sicher?"], [161.3, "Ein Körper in Gefahr hält fest"], [207.5, "Anna war ein B"], [269.2, "Im Alltag ging es nicht"], [294.0, "Was ich mit deinem Buchstaben mache"], [328.9, "Mischmuster M"], [340.0, "Detektiv in eigener Sache"]]}, "v6k2": {"dauer": 488, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k2.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k2.jpg", "marken": [[0.0, "Die falsche Frage"], [163.1, "Sei brav, sei stark"], [237.4, "Emotionaler Hunger"], [397.2, "Der erschöpfte Tanz"], [451.7, "Dein ältester Verbündeter"]]}, "v6k3": {"dauer": 501, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k3.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k3.jpg", "marken": [[0.0, "Der Ball, der fällt, bist du"], [190.3, "Der Rucksack"], [287.3, "Wissen ist nicht Können"], [322.9, "Zwei Frauen, eine Nachricht"], [422.7, "Die Handbremse"]]}, "v6k4": {"dauer": 359, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k4.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k4.jpg", "marken": [[0.0, "Gewicht ist das Ende einer Kette"], [53.0, "Der Darm spricht mit dem Kopf"], [130.8, "Die Darmwand"], [280.9, "Stimmung aus dem Darm"], [312.8, "Wo ist das Loch?"]]}, "v6k5": {"dauer": 357, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k5.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k5.jpg", "marken": [[0.0, "Viertel vor zehn"], [99.4, "Die Reihenfolge"], [189.6, "Die Zahl ist eine Folge"], [221.8, "Fünf Säulen"], [273.2, "Der beste Plan"], [317.8, "Bist du bereit?"]]}, "v6k6": {"dauer": 480, "video": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k6.mp4", "poster": "https://hischamelsobhi123-netizen.github.io/kompaktkurs/v6/media/v6k6.jpg", "marken": [[0.0, "Gibt es diesen Arzt wirklich?"], [153.7, "Drei Schritte"], [195.5, "Drei Sekunden am Kühlschrank"], [267.9, "Was davon war heute meins?"], [289.8, "Dein Umfeld muss sich nur gewöhnen"], [304.6, "Ein Rückfall ist kein Versagen"], [331.4, "Ein Plan allein trägt niemanden"], [336.6, "Dir hat nie etwas gefehlt"], [448.0, "Zwei Wege"]]}};
+
+</script>
+<script>
+/* Inhalt des Kompaktkurses. Dauer und Zeitmarken trägt bauen.py nach dem Schnitt ein. */
+window.KURS = {
+  kick: "Kompaktkurs mit Hischam El-Sobhi",
+  titel: "Warum dein Körper festhält <span>und was er wirklich braucht</span>",
+  text: "Was Hischam sonst an zwei Workshop-Tagen erklärt, in sechs kurzen Kapiteln zum Selbst-Anschauen. Es beginnt mit deinem Muster. In deinem Tempo, so oft du willst.",
+  fakten: ["6 Kapitel", "Facharzt erklärt selbst", "Kein Login", "Kostenlos"],
+  start: "Hischam erklärt dir in 6 kurzen Videos, warum dein Körper festhält und was er wirklich braucht. Du schaust einfach eins nach dem anderen.",
+  /* GHL-Workflow „Kompaktkurs: Fortschritt“ → Auslöser „Inbound Webhook“: hier die Adresse eintragen. Leer = keine Meldungen. */
+  webhook: "https://services.leadconnectorhq.com/hooks/rSmjF755vmdOhFQVTAVz/webhook-trigger/e8a534c2-d61a-4ab2-b1e2-d5a50d51f669",   /* v6: leer bis zur Freigabe (sonst melden Tests echte Ereignisse an GHL). Live: e8a534c2-… aus seite/kurs-daten.js */
+  /* Öffentliche Kurs-Adresse (für Teilen-Link und Kalendereintrag) */
+  adresse: "https://hischamelsobhi.de/kompaktkurs-v7k3",
+  /* v6 (16.11.): 6 Kapitel. Nach diesen Kapiteln steht die Karte „Du weißt schon, dass du Begleitung möchtest? Termin wählen“ (Ramy 10.11.) */
+  terminNach: [2, 4],
+  /* Erklärvideo „So funktioniert der Kurs“ (Remotion KursTutorial). Leer = Knopf wird nicht gezeigt. */
+  tutorial: "",   /* 11.11. Ramy: raus, zweiter Knopf am Start lenkt ab, Erstes soll Hischam sein. Wieder an: "https://hischamelsobhi123-netizen.github.io/kompaktkurs/media/tutorial.mp4" */
+  termin: "https://hischamelsobhi.de/typ-test-termin",
+  test: "https://hischamelsobhi.de/typ-test",
+  /* Muster-Videos für den Test im Kurs (17.11.): lokal ../media/, live die Typ-Test-v6-Adresse (veroeffentlichen_v6.py) */
+  musterMedia: "https://hischamelsobhi123-netizen.github.io/relounge-landing/typ-test/v6/media/",
+  /* alt (vor 17.11.): Wer ohne Muster kam, wurde auf die Kurs-Startseite geschickt. Seit 17.11. kommt der Test im Kurs nach Kap. 1. */
+  teststart: "https://hischamelsobhi.de/typ-test",
+  schluss: {
+    titel: "Du weißt jetzt, wie dein Körper denkt. <span>Jetzt geht es um deinen.</span>",
+    text: "Alles, was du im Kurs gesehen hast, schauen wir uns jetzt bei dir persönlich an. Ein Nein ist genauso in Ordnung wie ein Ja.",
+    knopf: "Gesprächstermin wählen"
+  },
+  /* Ramy 11.11.: Am Ende nur noch EIN Ziel, das kostenlose Gespräch. Der Check (590 €) wird nicht mehr im Kurs gezeigt,
+     er gehört ins Gespräch. Alte Check-Daten stehen im git-Verlauf von kompaktkurs (vor 11.11.). */
+  gespraech: {
+    kick: "Dein nächster Schritt",
+    titel: "Dein kostenloses Gespräch",
+    text: "Bevor irgendetwas entschieden wird, schauen wir gemeinsam auf dich. Darum geht es:",
+    punkte: ["Deine Geschichte: was du schon versucht hast und was nie gehalten hat", "Dein Muster: welcher Garten bei dir den Ton angibt", "Was man bei dir messen müsste, statt weiter zu raten", "Welche Reihenfolge bei dir sinnvoll wäre", "Ehrlich: ob eine Begleitung zu dir passt"],
+    fakten: "Kostenlos · unverbindlich",   /* Dauer/Art je nach Kalender (Hischam entscheidet 22.11.) */
+    danach: "Ein Nein ist genauso in Ordnung wie ein Ja. Du entscheidest in Ruhe.",
+    knopf: "📅 Termin wählen<small>dein kostenloses Gespräch</small>"
+  },
+  kapitel: [
+    { id: "v6k1", nr: 1, gruppe: "Dein Muster", titel: "Dein Muster verstehen",
+      text: "Anna, 53, macht alles richtig, und es wird trotzdem schlimmer. Warum ein Körper unter Druck festhält, was dein Buchstabe bedeutet und eine kleine Beobachtung für heute Abend.",
+      merksatz: "Keiner der Buchstaben heißt, dass du zu schwach warst. Jeder zeigt, wie verlässlich dein Körper dich all die Jahre geschützt hat.",
+      aufgabe: { art: "muster", frage: "Welches Muster steht bei dir im Vordergrund?", mit: "Dein Ergebnis aus dem Typ-Test ist markiert.", ohne: "Du hast den Typ-Test noch nicht gemacht? Er dauert 2 Minuten.",
+        text: { A: "Außen perfekt, innen Spannung. Zuerst braucht der Körper Sicherheit.", B: "Der Körper hat gelernt zu sparen. Zuerst braucht er Versorgung.", C: "Die Reserven sind leer. Zuerst braucht er Reserve, dann Anstrengung." } } },
+    { id: "v6k2", nr: 2, gruppe: "Verstehen", titel: "Es liegt nicht an dir",
+      text: "Warum „Was stimmt nicht mit mir?“ die falsche Frage ist, warum Essen oft eine Lösung ist, die nicht hält, und warum dein Körper dein ältester Verbündeter ist.",
+      merksatz: "Wie lange willst du noch versuchen, mit mehr Disziplin ein Problem zu lösen, das gar kein Disziplinproblem ist?",
+      aufgabe: { art: "satz", frage: "Welchen Satz sagst du am häufigsten zu dir selbst?", hinweis: "Schreib ihn so auf, wie er in deinem Kopf klingt. Er bleibt auf deinem Gerät.", platzhalter: "z. B. „Ich habe einfach keine Disziplin.“" } },
+    { id: "v6k3", nr: 3, gruppe: "Verstehen", titel: "Was in deinem Körper passiert",
+      text: "Druck von oben und von unten, der Rucksack, zwei Frauen mit derselben Nachricht und die angezogene Handbremse: warum ein Körper unter Dauerdruck festhält.",
+      merksatz: "Zwischen dem, was passiert, und dem, was du tust, liegt ein Raum.",
+      aufgabe: { art: "versucht", frage: "Was hast du schon alles versucht?", hinweis: "Tippe alles an, was du schon ausprobiert hast. Das bleibt auf deinem Gerät.",
+        optionen: ["Diäten", "Kalorien zählen", "Intervallfasten", "Low Carb", "Shakes", "Abnehmspritze", "Fitnessstudio", "Apps", "Weight Watchers", "Ernährungsberatung", "Tabletten/Pulver", "Ärzte"],
+        viel: "Das ist keine Liste des Scheiterns. Das ist die Liste von jemandem, der nie aufgegeben hat.", wenig: "Merk dir deine Auswahl. Im Gespräch fragen wir dich, was am längsten gehalten hat." } },
+    { id: "v6k4", nr: 4, gruppe: "Dein Körper", titel: "Der Eimer mit dem Loch",
+      text: "Warum nicht jede Gewichtszunahme beim Essen beginnt, wie der Darm mit dem Kopf spricht und warum gesund essen nicht heißt, gesund versorgt zu sein.",
+      merksatz: "Die Frage ist nie: Wie viel gebe ich? Die Frage ist: Wo ist das Loch?" },
+    { id: "v6k5", nr: 5, gruppe: "Dein Körper", titel: "Die Reihenfolge ist das Geheimnis",
+      text: "Viertel vor zehn am Kühlschrank, warum die Reihenfolge entscheidet, fünf Säulen, die zusammenhängen, und warum der beste Plan allein nicht trägt.",
+      merksatz: "Wir starten nicht bei der Waage. Wir starten beim System.",
+      aufgabe: { art: "ring", frage: "Wie stehen deine fünf Säulen gerade?", hinweis: "Schätze jeden Bereich von 1 (kaum) bis 10 (gut). Ein Gefühl reicht, kein Test.",
+        bereiche: ["Ernährung", "Darm", "Vitalstoffe", "Bewegung", "Kopf & Stress"],
+        schwach: "Genau dort schaut man zuerst hin, mit deinen Werten, nicht mit Raten.", gut: "Schieb die Regler, dann siehst du, wo es bei dir am ehesten klemmt." } },
+    { id: "v6k6", nr: 6, gruppe: "Der Weg", titel: "So sieht dein Weg aus",
+      text: "Wer Hischam ist, die drei Schritte Hinschauen, Einordnen, Dranbleiben, eine Übung für drei Sekunden, warum ein Rückfall kein Versagen ist und welche zwei Wege es jetzt gibt.",
+      merksatz: "Dir hat nie etwas gefehlt, das in dir liegt. Dir hat etwas gefehlt, das um dich herum liegt.",
+      gespraech: true }
+  ].map(function (k) {
+    var b = (window.KURS_BAU || {})[k.id] || {};
+    k.dauer = b.dauer || 0; k.video = b.video || ""; k.poster = b.poster || ""; k.marken = b.marken || []; return k;
+  })
+};
+
+</script>
+<script>
+(function(){
+  var D = window.KURS, K = D.kapitel;
+  var $ = function(id){ return document.getElementById(id); };
+  var SP = 'kompaktkurs_v1', st = {};
+  try{ st = JSON.parse(localStorage.getItem(SP) || '{}'); }catch(e){}
+  st.fertig = st.fertig || {}; st.pos = st.pos || {}; st.ein = st.ein || {}; st.posd = st.posd || {};
+  /* v6 (17.11.): Ein Stand aus dem alten 10-Kapitel-Kurs passt nicht auf 6 Kapitel (K[7] fehlt → Absturz).
+     Fortschritt einmal neu, Kontakt, Zugang und WhatsApp-Antwort bleiben. */
+  if(st.kursv !== 6){ st.fertig = {}; st.pos = {}; st.posd = {}; st.letzt = 0; st.gemeldet = {}; st.kursv = 6; }
+  if(!((st.letzt || 0) >= 0 && (st.letzt || 0) < K.length)) st.letzt = 0;
+  function speichern(){ try{ localStorage.setItem(SP, JSON.stringify(st)); }catch(e){} }
+  function esc(s){ return String(s||'').replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function minuten(s){ return Math.max(1, Math.round(s/60)) + ' Minuten'; }
+
+  /* Persönlicher Link: ?n=Vorname&m=B&c=Kontakt-ID&p=0|1 (wird gemerkt)
+     Dazu (10.11.): q = Quelle (typtest, danke, anruf, reel, empfehlung …, nur die erste zählt),
+     von = Kontakt-ID der Person, die den Kurs weitergeschickt hat, k/t = Kapitel und Sekunde
+     zum Weiterschauen (kommen aus GHL in jeder Erinnerung, damit es auch auf einem anderen Gerät klappt). */
+  var q = new URLSearchParams(location.search);
+  ['n','m','c','p'].forEach(function(x){ var v = q.get(x); if(v !== null && v !== '' && !/\{\{/.test(v)){ st['url_'+x] = v; } });
+  if(q.get('q') && !st.quelle) st.quelle = q.get('q').slice(0,30);
+  if(q.get('von') && !st.von) st.von = q.get('von').slice(0,40);
+  /* Gemeinsamer Speicher mit der Typ-Test-Danke-Seite (gleiche Domain hischamelsobhi.de) */
+  var kk = {};
+  try{ kk = JSON.parse(localStorage.getItem('kurs_kontakt') || '{}') || {}; }catch(e){}
+  if(!st.url_c && kk.c) st.url_c = kk.c;
+  if(!st.url_n && kk.n) st.url_n = kk.n;
+  if(!st.url_m && kk.m) st.url_m = kk.m;
+  if(kk.e && !st.mail) st.mail = kk.e;
+  if(kk.t && !st.tel) st.tel = kk.t;
+  /* 13.11. (Ramy: „wer über den Typ-Test kommt, deren Daten haben wir schon“): GHL-Formulare (Typ-Test, Workshop-Anmeldung)
+     legen nach dem Absenden die Kontaktdaten unter hischamelsobhi.de im Browser ab (Schlüssel „_ud“, form_embed.js,
+     „sticky contacts“). Der Kurs liegt auf derselben Domain: Wer dort schon ein Formular ausgefüllt hat, muss nichts mehr eintippen. */
+  var ghl = {};
+  try{
+    var roh = localStorage.getItem('_ud') || '';
+    try{ ghl = JSON.parse(roh); }catch(e){ try{ ghl = JSON.parse(atob(roh)); }catch(e2){ ghl = {}; } }
+    if(typeof ghl === 'string'){ try{ ghl = JSON.parse(ghl); }catch(e3){ ghl = {}; } }
+    if(!ghl || typeof ghl !== 'object' || (ghl.location_id && ghl.location_id !== 'rSmjF755vmdOhFQVTAVz')) ghl = {};
+  }catch(e){ ghl = {}; }
+  var ghlMail = ghl.email || '', ghlTel = ghl.phone || ghl.phone_number || '', ghlName = ghl.first_name || ghl.firstName || String(ghl.full_name || ghl.name || '').split(' ')[0] || '';
+  if(ghlMail && /@/.test(ghlMail) && !st.mail){ st.mail = String(ghlMail).trim(); st.ausFormular = 1; }
+  if(ghlTel && !st.tel) st.tel = e164(ghlTel);
+  if(ghlName && !st.url_n) st.url_n = ghlName;
+  if(!st.quelle) st.quelle = (kk.c || kk.e) ? 'danke' : (st.ausFormular ? 'formular' : 'direkt');
+  function kontaktMerken(){ try{ kk.c = st.url_c || kk.c; kk.n = st.url_n || kk.n; kk.e = st.mail || kk.e; kk.t = st.tel || kk.t; localStorage.setItem('kurs_kontakt', JSON.stringify(kk)); }catch(e){} }
+  kontaktMerken();
+  speichern();
+  var name = (st.url_n || '').replace(/[^\wäöüÄÖÜß\- ]/g,'').slice(0,30);
+  var NAME = {A:'Alarm',B:'Bunker',C:'Crash',M:'Mischung'}, mein = [];
+  try{ mein = String(st.url_m || localStorage.getItem('typ_muster') || '').toUpperCase().replace(/[ -]/g,'+').split('+').filter(function(x){ return NAME[x]; }); }catch(e){}
+  var mitPreis = (st.url_p || '1') !== '0';
+  /* Fassung der Kurs-Startseite (17.11.: V = Video zuerst, T = Test zuerst). Bleibt beim ersten Wert. */
+  if(!st.kv){
+    var kvNeu = q.get('kv') || '';
+    try{ if(!kvNeu && localStorage.getItem('typ_eingang') === 'kurs') kvNeu = localStorage.getItem('kurs_variante') || ''; }catch(e){}
+    if(/^[VT]$/.test(kvNeu)){ st.kv = kvNeu; speichern(); }
+  }
+  var kvVideo = '';
+  try{ if(st.kv) kvVideo = localStorage.getItem('kurs_video') || '0'; }catch(e){}
+
+  /* Meldungen an GHL (Inbound Webhook, kurs-daten.js → webhook).
+     Nur wenn wir wissen, wer schaut (Kontakt-ID aus dem Link oder E-Mail aus der Zugangs-Karte).
+     Meilensteine gehen pro Person einmal raus; „immer“ = jedes Mal (Sitzungsende, Erinnerung, Zugang). */
+  var gemeldet = st.gemeldet || {};
+  function bekannt(){ return !!(st.url_c || st.mail); }
+  function stand(){
+    var k = K[Math.min(st.letzt || 0, K.length-1)];
+    return {kapitel: k.nr, sekunde: Math.round(st.pos[k.id] || 0), minuten: Math.round((st.sek || 0) / 60)};
+  }
+  function melde(ereignis, daten, immer){
+    if(!D.webhook || !bekannt()) return;
+    if(!immer){ if(gemeldet[ereignis]) return; gemeldet[ereignis] = 1; st.gemeldet = gemeldet; speichern(); }
+    try{
+      /* 13.11. live gemessen: GHL liest Parameter in der Adresse NICHT mehr (Kontakt kam leer an), text/plain auch nicht.
+         Formular-Format (application/x-www-form-urlencoded) und JSON gehen. Formular ist für sendBeacon erlaubt,
+         darum klappt es auch beim Schließen des Tabs. */
+      var w = Object.assign({kontakt: st.url_c || '', email: st.mail || '', telefon: st.tel || '', vorname: name, ereignis: ereignis,
+        muster: mein.join('-'), fassung: mitPreis ? 'mit_preis' : 'ohne_preis', preis: mitPreis ? '1' : '0', fortschritt: anzahl(), quelle: st.quelle || '', von: st.von || '',
+        datum: new Date().toISOString(),
+        kurs_variante: st.kv || '', kurs_video: kvVideo,
+        typ_muster: st.typ ? String(st.typ.m).replace(/\+/g,'-') : '', typ_ergebnis: st.typ ? st.typ.e : '', typ_antworten: st.typ ? st.typ.a : '', typ_quelle: st.typ ? 'kurs' : '', kurs_schlagwort: st.kv ? 'kurs-fassung-' + (st.kv === 'V' ? 'video' : 'test') : ''}, stand(), daten || {});
+      var body = new URLSearchParams(w);
+      if(navigator.sendBeacon && navigator.sendBeacon(D.webhook, body)) return;
+      fetch(D.webhook, {method:'POST', body: body, keepalive: true, mode:'no-cors'});
+    }catch(e){}
+  }
+  /* Sitzungsende: wenn sie den Tab schließt, das Handy sperrt oder die App wechselt.
+     Höchstens alle 2 Minuten und nur, wenn seitdem mindestens 20 Sekunden geschaut wurden. Daraus holt GHL sie genau dorthin zurück. */
+  var letzteMeldung = 0, sekBeiMeldung = st.sek || 0;
+  function sitzungEnde(){
+    if((st.sek || 0) - sekBeiMeldung < 20 || Date.now() - letzteMeldung < 120000) return;
+    letzteMeldung = Date.now(); sekBeiMeldung = st.sek || 0;
+    melde('sitzung_ende', {}, true);
+  }
+  document.addEventListener('visibilitychange', function(){ if(document.visibilityState === 'hidden') sitzungEnde(); });
+  window.addEventListener('pagehide', sitzungEnde);
+
+  /* Weiterschauen über den Link aus GHL (?k=5&t=432): gilt, wenn er weiter ist als der Stand auf diesem Gerät */
+  (function(){
+    var kq = parseInt(q.get('k'), 10), tq = parseInt(q.get('t'), 10) || 0;
+    if(!(kq >= 1 && kq <= K.length)) return;
+    var kap = K[kq-1], l = st.letzt || 0;
+    if(kq-1 > l || (kq-1 === l && tq > (st.pos[kap.id] || 0))){
+      st.letzt = kq-1; st.pos[kap.id] = tq; st.posd[kap.id] = kap.dauer;
+      for(var i = 0; i < kq-1; i++) st.fertig[K[i].id] = st.fertig[K[i].id] || 1;
+      speichern();
+    }
+  })();
+
+  /* Start */
+  var gesamt = K.reduce(function(a,k){ return a + (k.dauer||0); }, 0);
+  $('hallo').textContent = name ? 'Hallo ' + name + ', schön, dass du da bist.' : 'Schön, dass du da bist.';
+  $('startSatz').textContent = D.start || 'Hischam erklärt dir in 10 kurzen Videos, warum dein Körper festhält. Du schaust einfach eins nach dem anderen.';
+  if(mein.length){ $('muster').hidden = false; $('musterBu').textContent = mein.join('+'); $('musterT').textContent = 'Dein Muster: ' + mein.map(function(x){ return NAME[x]; }).join(' & '); }
+  function anzahl(){ return K.filter(function(k){ return st.fertig[k.id]; }).length; }
+  function startKnopf(){
+    var n = anzahl(), l = st.letzt || 0, ps = st.pos[K[l].id] || 0;
+    if(!st.posd || !st.posd[K[l].id] || Math.abs(st.posd[K[l].id] - (K[l].dauer||0)) > 2) ps = 0;   /* Stelle aus älterer Schnittfassung: nicht „Minute 7“ versprechen */
+    var zurueckDa = n || l || ps > 20;
+    if(zurueckDa) $('hallo').textContent = name ? 'Willkommen zurück, ' + name + '.' : 'Willkommen zurück.';
+    if(zurueckDa) $('startSatz').textContent = 'Du warst bei Kapitel ' + K[l].nr + ': „' + K[l].titel + '“' + (ps > 60 ? ', etwa bei Minute ' + Math.floor(ps/60) : '') + '. Mit einem Tipp geht es genau dort weiter.';
+    $('losT').textContent = zurueckDa ? '▶ Weiterschauen' : '▶ Los geht\'s';
+    $('losS').textContent = zurueckDa ? 'Kapitel ' + K[l].nr + ' von ' + K.length : 'Kapitel 1: ' + K[0].titel + ' · ' + minuten(K[0].dauer||0);
+    $('startKlein').textContent = n ? n + ' von ' + K.length + ' Kapiteln schon angesehen' : K.length + ' kurze Kapitel · je ' + Math.round(Math.min.apply(null, K.map(function(k){ return k.dauer||360; }))/60) + ' bis ' + Math.round(Math.max.apply(null, K.map(function(k){ return k.dauer||0; }))/60) + ' Minuten · kostenlos · du kannst jederzeit pausieren, deine Stelle wird gemerkt';
+  }
+  startKnopf();
+  /* 11.11.: Wer den Kurs schon fertig hat und wiederkommt, will meist nicht nochmal Kapitel 10 sehen. Hauptknopf = Termin. */
+  var fertigDa = st.abschluss || st.fertig[K[K.length-1].id];
+  if(fertigDa){
+    $('hallo').textContent = name ? 'Schön, dass du wieder da bist, ' + name + '.' : 'Schön, dass du wieder da bist.';
+    $('startSatz').textContent = st.termin ? 'Du hast den ganzen Kurs gesehen. Falls dein Termin noch nicht steht: Hier wählst du ihn in einer Minute.' : 'Du hast den ganzen Kurs gesehen. Jetzt fehlt nur noch ein Schritt: dein kostenloses Gespräch mit Hischams Team.';
+    $('losT').textContent = '📅 Termin wählen'; $('losS').textContent = 'per Video · etwa 45 Minuten · kostenlos';
+    $('zweitKnopf').hidden = false; $('zweitKnopf').textContent = 'Lieber nochmal in den Kurs schauen';
+  }
+  /* v6 (Ramy 16.11.): Der Kurs beginnt mit dem eigenen Muster. Wer weder bekannt ist noch sein Muster kennt
+     (z. B. weitergeleiteter Link), macht zuerst den 2-Minuten-Test auf der Kurs-Startseite. Wer den Test schon
+     anderswo gemacht hat, tippt sein Muster einfach an. */
+  /* 17.11. Ramy: „Der Test soll Teil des Kurses sein, nach Kapitel 1 … ein kompaktes Ding mit dem Test drin.“
+     Wer sein Muster noch nicht kennt (auch bekannte Kontakte, z. B. Workshop-Absage, Anruf), schaut Kapitel 1
+     (erklärt die drei Muster) und macht dann direkt im Kurs den 2-Minuten-Test. Kein Umweg über eine andere Seite. */
+  function brauchtTest(){ return !mein.length && !st.typ; }
+  var testZuerst = brauchtTest() && !fertigDa && !anzahl();
+  if(testZuerst){
+    $('hallo').textContent = name ? 'Hallo ' + name + ', dein Kurs beginnt mit dir.' : 'Dein Kurs beginnt mit dir.';
+    $('startSatz').textContent = 'Hischam erklärt dir in ' + K.length + ' kurzen Kapiteln, warum dein Körper festhält. Nach Kapitel 1 findest du in 2 Minuten heraus, welches Muster bei dir im Vordergrund steht. Ab da ist der Kurs auf dich zugeschnitten.';
+    $('losS').textContent = 'Kapitel 1: ' + K[0].titel + ' · danach dein Muster-Test';
+    $('zweitKnopf').hidden = false; $('zweitKnopf').textContent = 'Ich habe den Test schon gemacht';
+  }
+  function musterWaehlen(){
+    var w = document.createElement('div'); w.className = 'mwahl';
+    w.innerHTML = '<p>Welches Muster stand bei dir im Ergebnis?</p>' + ['A','B','C'].map(function(x){ return '<button type="button" data-m="'+x+'"><b>'+x+'</b> '+NAME[x]+'</button>'; }).join('') + '<button type="button" data-m="A-B">Mischung aus mehreren</button>';
+    $('zweitKnopf').replaceWith(w);
+    w.querySelectorAll('button').forEach(function(b){ b.onclick = function(){
+      st.url_m = b.dataset.m; speichern(); location.replace(location.pathname + location.search.replace(/([?&])m=[^&]*/, '$1') + (location.search ? '&' : '?') + 'm=' + b.dataset.m);
+    }; });
+  }
+
+  /* Kurzes Erklärvideo „So funktioniert der Kurs“ (kurs-daten.js → tutorial). Danach direkt in Kapitel 1. */
+  if(D.tutorial){
+    $('tutKnopf').hidden = false;
+    $('tutKnopf').onclick = function(){
+      var w = document.createElement('div'); w.className = 'tutfenster';
+      w.innerHTML = '<video src="'+D.tutorial+'" controls playsinline autoplay></video><button class="gross">▶ Verstanden, los geht\'s</button>';
+      document.body.appendChild(w);
+      melde('tutorial_gestartet');
+      w.querySelector('button').onclick = function(){ w.remove(); $('losKnopf').click(); };
+    };
+  }
+
+  /* Ansicht wechseln, mit Verlauf: Die Zurück-Taste des Handys geht ein Kapitel zurück */
+  var akt = 0, vid = null;
+  function zeigeAnsicht(was, i, ohneVerlauf){
+    if(vid){ try{ vid.pause(); }catch(e){} }
+    $('start').hidden = was !== 'start';
+    $('ansicht').hidden = was === 'start';
+    $('kapitel').hidden = was !== 'kapitel';
+    $('schluss').hidden = was !== 'schluss';
+    $('ttest').hidden = was !== 'test';
+    document.body.classList.toggle('imTest', was === 'test');
+    if(was === 'test') testZeigen();
+    if(was === 'kapitel') kapitel(i);
+    if(was === 'schluss') schluss();
+    if(!ohneVerlauf){ try{ history.pushState({was: was, i: i}, '', was === 'kapitel' ? '#k' + (i+1) : was === 'schluss' ? '#ende' : was === 'test' ? '#test' : '#'); }catch(e){} }
+    window.scrollTo(0, 0);
+  }
+  window.addEventListener('popstate', function(e){
+    var s = e.state || {was:'start'};
+    zeigeAnsicht(s.was, s.i, true);
+  });
+
+  /* Kapitel */
+  function punkte(){
+    $('punkte').innerHTML = K.map(function(k,i){ return '<i class="'+(i===akt?'jetzt':(st.fertig[k.id]?'ok':''))+'"></i>'; }).join('');
+  }
+  function kapitel(i){
+    akt = Math.max(0, Math.min(K.length-1, i)); var k = K[akt];
+    st.letzt = akt; speichern();
+    $('kNr').textContent = 'Kapitel ' + k.nr + ' von ' + K.length;
+    $('kTitel').textContent = k.titel; $('kText').textContent = k.text;
+    $('kMerk').innerHTML = k.merksatz ? '<div class="merk"><span class="k">Zum Mitnehmen</span><q>'+k.merksatz+'</q></div>' : '';
+    var el = $('kAufgabe'); el.innerHTML = '';
+    if(k.aufgabe && AUF[k.aufgabe.art]) AUF[k.aufgabe.art](k, el);
+    $('kVorne').innerHTML = k.gespraech ? gespraechKarte(true) : ''; verknuepfen($('kVorne'));
+    $('kCheck').innerHTML = (TERMIN_NACH.indexOf(k.nr) > -1 ? terminKarte() : '') + (k.nr === 8 ? teilenKarte() : '');
+    verknuepfen($('kCheck'));
+    var letztes = akt === K.length - 1;
+    $('weiter').innerHTML = letztes ? 'Zum Abschluss ›' : (akt === 0 && brauchtTest()) ? 'Weiter ›<small>Dein Muster-Test · 2 Minuten</small>' : 'Weiter ›<small>Kapitel ' + K[akt+1].nr + ': ' + K[akt+1].titel + '</small>';
+    $('zurueck').disabled = false;
+    punkte(); player(k);
+    var r = $('erinner'); if(r) r.remove();
+    var tb = $('tbar'); if(tb){ tb.hidden = akt < 2; document.body.classList.toggle('mitTermin', akt >= 2); }
+    if(akt >= 1) setTimeout(function(){ zugangPruefen(); waPruefen(); }, 0);
+  }
+
+  /* ---------- Neu 10.11.: Termin, Teilen, Erinnern, Zugang ---------- */
+  var KURS_URL = D.adresse || 'https://hischamelsobhi.de/kompaktkurs-v7k3';
+  var TERMIN_NACH = D.terminNach || [4, 6, 8];
+  function terminGeklickt(){ st.termin = (st.termin || 0) + 1; speichern(); }
+  function terminLink(){
+    var p = new URLSearchParams(); if(mein.length) p.set('m', mein.join('-')); if(name) p.set('first_name', name);
+    return D.termin + (p.toString() ? (D.termin.indexOf('?') < 0 ? '?' : '&') + p : '');
+  }
+  /* Wer schon weiß, dass sie Begleitung will, soll nicht bis Kapitel 10 warten müssen (Ramy 10.11.) */
+  function terminKarte(){
+    return '<div class="tkarte"><div class="ck">Schon klar für dich?</div><h3>Du weißt schon, dass du ärztlich begleitet werden möchtest?</h3>'
+      + '<p>Dann wähl dir jetzt einen festen Termin für dein persönliches Gespräch. Wir schauen gemeinsam, wie es bei dir genau aussieht. Den Kurs kannst du trotzdem zu Ende schauen.</p>'
+      + '<a class="gross" data-termin href="#">📅 Meinen Termin wählen<small>per Video · etwa 45 Minuten · kostenlos</small></a></div>';
+  }
+  function teilenKarte(){
+    return '<div class="teilk"><b>Kennst du jemanden, dem es genauso geht?</b><p>Schick ihr Hischams Kurs. Sie schaut in ihrem Tempo, kostenlos.</p>'
+      + '<div class="tk"><a class="twa" data-teilen href="#">Per WhatsApp schicken</a><button type="button" class="tkopie" data-kopie>Link kopieren</button></div></div>';
+  }
+  function teilenUrl(){ var p = new URLSearchParams({p:'0', q:'empfehlung'}); if(st.url_c) p.set('von', st.url_c); return KURS_URL + '?' + p; }
+  function verknuepfen(el){
+    el.querySelectorAll('[data-termin]').forEach(function(a){ a.href = terminLink(); a.onclick = function(){ terminGeklickt(); melde('termin_klick', {wo: 'kapitel_' + (K[akt] ? K[akt].nr : 'ende')}, true); }; });
+    el.querySelectorAll('[data-teilen]').forEach(function(a){
+      a.href = 'https://wa.me/?text=' + encodeURIComponent('Ich schaue gerade einen kostenlosen Kurs von Hischam El-Sobhi, Facharzt. Es geht darum, warum der Körper festhält, obwohl man alles richtig macht. Schau mal rein: ' + teilenUrl());
+      a.target = '_blank'; a.rel = 'noopener'; a.onclick = function(){ melde('geteilt', {}, true); };
+    });
+    el.querySelectorAll('[data-kopie]').forEach(function(b){ b.onclick = function(){
+      var u = teilenUrl(), ok = function(){ b.textContent = 'Kopiert ✓'; melde('geteilt', {}, true); };
+      if(navigator.clipboard) navigator.clipboard.writeText(u).then(ok, function(){ prompt('Link kopieren:', u); }); else prompt('Link kopieren:', u);
+    }; });
+  }
+  verknuepfen($('ansicht'));
+
+  /* „Keine Zeit mehr?“ – erscheint, wenn sie mitten im Kapitel pausiert */
+  function zeitpunkt(wann){
+    var d = new Date(), z = new Date(d);
+    /* Passt genau zu GHL „Kompaktkurs: Wunsch-Erinnerung“: dort 30 Min (abends/Wochenende) bzw. 6 Std (früh) warten, dann Fenster 19:30, 8:30, Sa 10:00 */
+    if(wann === 'heute_abend'){ z.setHours(19,30,0,0); if(z - d < 15*60000) z.setDate(z.getDate()+1); }
+    else if(wann === 'morgen_frueh'){ z.setHours(8,30,0,0); if(z - d < 345*60000) z.setDate(z.getDate()+1); }
+    else { z.setDate(z.getDate() + (6 - d.getDay() + 7) % 7); z.setHours(10,0,0,0); if(z - d < 15*60000) z.setDate(z.getDate()+7); }
+    return z;
+  }
+  function erinnerKarte(k){
+    if($('erinner')) return;
+    var e = document.createElement('div'); e.id = 'erinner'; e.className = 'erinner';
+    e.innerHTML = '<b>Keine Zeit mehr? Kein Problem.</b><p>' + (bekannt() ? 'Wann sollen wir dich erinnern? Du kommst dann genau an diese Stelle zurück.' : 'Trag dir einen Moment ein, dann schaust du genau hier weiter.') + '</p>'
+      + '<div class="ew">' + [['heute_abend','Heute Abend'],['morgen_frueh','Morgen früh'],['wochenende','Am Wochenende']].map(function(w){ return '<button type="button" data-w="'+w[0]+'">'+w[1]+'</button>'; }).join('') + '</div>'
+      + '<div class="eok" hidden></div>'
+      + '<div class="eselbst">Oder schick dir den Link: <a data-swa href="#">per WhatsApp</a> · <a data-smail href="#">per E-Mail</a></div>';
+    $('pbox').parentNode.parentNode.insertBefore(e, $('pbox').parentNode.nextSibling);
+    var selbst = function(){ return 'Hier schaue ich Hischams Kurs weiter, genau an meiner Stelle (Kapitel ' + k.nr + '): ' + weiterLink(k, 'selbst'); };
+    e.querySelector('[data-swa]').onclick = function(ev){ ev.preventDefault(); melde('link_selbst', {wie: 'whatsapp'}, true); window.open('https://wa.me/?text=' + encodeURIComponent(selbst()), '_blank', 'noopener'); };
+    e.querySelector('[data-smail]').onclick = function(ev){ ev.preventDefault(); melde('link_selbst', {wie: 'mail'}, true); location.href = 'mailto:?subject=' + encodeURIComponent('Hischams Kurs: hier geht es weiter') + '&body=' + encodeURIComponent(selbst()); };
+    e.querySelectorAll('[data-w]').forEach(function(b){ b.onclick = function(){
+      var z = zeitpunkt(b.dataset.w), ok = e.querySelector('.eok');
+      e.querySelectorAll('[data-w]').forEach(function(x){ x.classList.toggle('an', x === b); });
+      var tag = z.toLocaleDateString('de-DE', {weekday:'long'}), zeit = z.toLocaleTimeString('de-DE', {hour:'2-digit', minute:'2-digit'});
+      if(bekannt()){ melde('erinnerung_' + b.dataset.w, {wann: b.dataset.w, erinnerung_um: z.toISOString()}, true); }
+      ok.hidden = false;
+      ok.innerHTML = (bekannt() ? '✓ Machen wir. Wir schicken dir am ' + tag + ' um ' + zeit + ' Uhr deinen Link. ' : '') + '<a href="#" data-ics>📅 In meinen Kalender eintragen</a>';
+      ok.querySelector('[data-ics]').onclick = function(ev){ ev.preventDefault(); kalender(z, k); };
+    }; });
+  }
+  /* Link, der auf jedem Gerät genau an diese Stelle führt (k/t) */
+  function weiterLink(k, quelle){
+    var p = new URLSearchParams({k: k.nr, q: quelle}); var t = Math.floor(vid && !vid.ended ? vid.currentTime : (st.pos[k.id] || 0)); if(t > 5) p.set('t', t);
+    if(st.url_c) p.set('c', st.url_c); if(name) p.set('n', name); if(mein.length) p.set('m', mein.join('-')); if(!mitPreis) p.set('p', '0');
+    return KURS_URL + '?' + p;
+  }
+  function kalender(z, k){
+    var url = weiterLink(k, 'kalender'), f = function(d){ return d.toISOString().replace(/[-:]/g,'').replace(/\.\d+/, ''); };
+    var ende = new Date(z.getTime() + 30*60000);
+    var ics = ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Kompaktkurs//DE','BEGIN:VEVENT','UID:kurs-' + Date.now() + '@hischamelsobhi.de','DTSTAMP:' + f(new Date()),
+      'DTSTART:' + f(z),'DTEND:' + f(ende),'SUMMARY:Hischams Kompaktkurs weiterschauen (Kapitel ' + k.nr + ')','DESCRIPTION:Hier geht es weiter: ' + url,'URL:' + url,
+      'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:Kompaktkurs','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ics], {type:'text/calendar'})); a.download = 'kompaktkurs.ics';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ a.remove(); }, 500);
+    melde('kalender', {}, true);
+  }
+
+  /* Telefonnummer mit Landesvorwahl, wie GHL sie erwartet: 0171… → +49171…, 0043… → +43… */
+  function e164(t){
+    var d = String(t || '').replace(/[^\d+]/g, '');
+    if(d.indexOf('00') === 0) return '+' + d.slice(2);
+    if(d.charAt(0) === '0') return '+49' + d.slice(1);
+    return d.charAt(0) === '+' ? d : '+' + d;
+  }
+  /* Zugangs-Karte (13.11., Ramy): Wer ohne persönlichen Link kommt (Reel, Empfehlung, Merk-Link), sieht Kapitel 1 und 2 frei
+     (in Kapitel 1 ist nur Anna, Hischam spricht erst in Kapitel 2 richtig). Vor Kapitel 3 ist die Anmeldung Pflicht:
+     Vorname, E-Mail, Telefon und das Häkchen. Kein „Später“, kein zweites Tor. */
+  var ZUGANG_TEXT = 'Ich möchte meinen Zugang und Erinnerungen zum Kurs per E-Mail und WhatsApp bekommen. Dafür speichert Hischams Team, wie weit ich im Kurs bin. Abmelden geht jederzeit.';
+  function zugangPruefen(){
+    if(!D.webhook || bekannt() || $('zugang')) return;
+    if(akt < 2) return;
+    if(vid){ try{ vid.pause(); }catch(e){} }
+    var z = document.createElement('div'); z.id = 'zugang'; z.className = 'zugang';
+    /* Ramy 13.11.: so einfach wie möglich und begründet, wofür die Daten sind (direkt weiterschauen). Vorausgefüllt, was wir schon wissen. */
+    z.innerHTML = '<form class="zblatt" novalidate><div class="ck">Kurz eintragen, dann geht es direkt weiter</div><h3>' + (name ? esc(name) + ', d' : 'D') + 'amit du genau hier weiterschauen kannst</h3>'
+      + '<p>Wir merken uns deine Stelle und schicken dir deinen Link per WhatsApp. So machst du jederzeit genau hier weiter, auch am Handy. Kein Passwort.</p>'
+      + '<label>Vorname<input name="n" autocomplete="given-name" required value="' + esc(name) + '"></label>'
+      + '<label>E-Mail<input name="e" type="email" autocomplete="email" inputmode="email" required value="' + esc(st.mail || '') + '"></label>'
+      + '<label>Handy<input name="t" type="tel" autocomplete="tel" inputmode="tel" required placeholder="z. B. 0171 2345678" value="' + esc(st.tel || '') + '"></label>'
+      + '<label class="ja"><input type="checkbox" name="ok" required> <span>' + ZUGANG_TEXT + ' <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></span></label>'
+      + '<div class="zfehl" hidden></div><button class="gross" type="submit">▶ Jetzt weiterschauen</button></form>';
+    document.body.appendChild(z);
+    var f = z.querySelector('form');
+    f.onsubmit = function(ev){
+      ev.preventDefault();
+      var n = f.n.value.trim(), e = f.e.value.trim(), t = f.t.value.trim(), ziffern = t.replace(/\D/g, ''), fehl = z.querySelector('.zfehl');
+      var msg = !n ? 'Bitte deinen Vornamen eintragen.' : !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e) ? 'Bitte prüf deine E-Mail-Adresse.' : (ziffern.length < 9 || ziffern.length > 15) ? 'Bitte prüf deine Handynummer.' : !f.ok.checked ? 'Bitte setz das Häkchen, damit wir dir den Zugang schicken dürfen.' : '';
+      if(msg){ fehl.hidden = false; fehl.textContent = msg; return; }
+      st.url_n = n; name = n.replace(/[^\wäöüÄÖÜß\- ]/g,'').slice(0,30); st.mail = e; st.tel = e164(t); st.wa = 'ja'; speichern(); kontaktMerken();
+      melde('zugang_angefordert', {einwilligung: ZUGANG_TEXT}, true);
+      z.remove(); if(vid) vid.play();
+    };
+  }
+  /* WhatsApp-Frage (13.11., Ramy): Wer über den persönlichen Link kommt (z. B. Workshop-Absage), ist bekannt und sieht die
+     Zugangs-Karte nie. Die Nummer haben wir oft aus dem Workshop, aber ohne WhatsApp-Einwilligung. Deshalb vor Kapitel 3
+     (wie die Zugangs-Karte, Ramy 13.11.) eine kleine, freiwillige Frage: Nummer + Häkchen → Meldung „whatsapp_ja“ mit Kontakt-ID. GHL setzt Nummer, Schlagwort und Notiz
+     (Beleg der Einwilligung) und startet „Kompaktkurs: Zugang“ mit der WhatsApp-Vorlage. ?w=1 im Link = Einwilligung liegt schon vor. */
+  var WA_TEXT = 'Ja, schickt mir meinen Kurs-Zugang und Erinnerungen zum Kurs auch per WhatsApp. Abmelden geht jederzeit, eine kurze Antwort „Stopp“ reicht.';
+  /* 17.11. Ramy: Wer den Link schon per WhatsApp bekommen hat (Anruf → „ich schick dir den Zugang per WhatsApp“), wird nicht
+     nochmal nach WhatsApp gefragt. Erkennt: w=1 im Link oder eine Quelle, die auf _wa endet (Ausschnitt ws_absage_wa, anruf_wa). */
+  if(q.get('w') === '1' || /(^|_)wa$/.test(q.get('q') || '')) { st.wa = 'ja'; speichern(); }
+  function waPruefen(){
+    if(!D.webhook || !bekannt() || st.wa || $('zugang') || $('waFrage')) return;
+    if(akt < 2) return;
+    if(vid){ try{ vid.pause(); }catch(e){} }
+    var z = document.createElement('div'); z.id = 'waFrage'; z.className = 'zugang';
+    z.innerHTML = '<form class="zblatt" novalidate><div class="ck">Kleine Frage</div><h3>' + (name ? esc(name) + ', d' : 'D') + 'einen Link auch per WhatsApp?</h3>'
+      + '<p>Dann hast du deine Stelle immer im Handy und kannst mit einem Tipp genau hier weiterschauen.</p>'
+      + '<label>Handy<input name="t" type="tel" autocomplete="tel" inputmode="tel" placeholder="z. B. 0171 2345678" value="' + esc(st.tel || '') + '"></label>'
+      + '<label class="ja"><input type="checkbox" name="ok"> <span>' + WA_TEXT + ' <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></span></label>'
+      + '<div class="zfehl" hidden></div><button class="gross" type="submit">Ja, per WhatsApp</button>'
+      + '<button type="button" class="spaeter">Nein danke, weiterschauen</button></form>';
+    document.body.appendChild(z);
+    var f = z.querySelector('form');
+    z.querySelector('.spaeter').onclick = function(){ st.wa = 'nein'; speichern(); melde('whatsapp_nein'); z.remove(); if(vid) vid.play(); };
+    f.onsubmit = function(ev){
+      ev.preventDefault();
+      var t = f.t.value.trim(), fehl = z.querySelector('.zfehl'), ziffern = t.replace(/\D/g, '');
+      var msg = ziffern.length < 9 || ziffern.length > 15 ? 'Bitte prüf deine Handynummer.' : !f.ok.checked ? 'Bitte setz das Häkchen, damit wir dir per WhatsApp schreiben dürfen.' : '';
+      if(msg){ fehl.hidden = false; fehl.textContent = msg; return; }
+      st.tel = e164(t); st.wa = 'ja'; speichern(); kontaktMerken();
+      /* Mit Kontakt-ID findet WF1 den Kontakt direkt (Zweig „WhatsApp ja“). Nur per E-Mail bekannt (Typ-Test, Workshop-Formular):
+         gleiche Meldung wie die Zugangs-Karte, GHL findet den Kontakt dann über E-Mail/Nummer (Zweig „Zugang neu“). */
+      melde(st.url_c ? 'whatsapp_ja' : 'zugang_angefordert', {einwilligung: WA_TEXT}, true);
+      f.innerHTML = '<div class="ck">Danke</div><h3>Super, gleich kommt dein Link per WhatsApp.</h3><button class="gross" type="button">Weiterschauen</button>';
+      f.querySelector('button').onclick = function(){ z.remove(); if(vid) vid.play(); };
+    };
+  }
+  function uhr(t){ t = Math.floor(t); return Math.floor(t/60) + ':' + ('0' + (t%60)).slice(-2); }
+  function player(k){
+    var box = $('pbox'); box.innerHTML = ''; vid = null;
+    if(!k.video){ box.innerHTML = '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff">Video folgt</div>'; return; }
+    var f = document.createElement('button'); f.className = 'vstart'; f.setAttribute('aria-label','Video abspielen');
+    if(k.poster) f.style.backgroundImage = 'url('+k.poster+')';
+    f.innerHTML = '<div class="play"><span></span>Video abspielen · '+minuten(k.dauer)+'</div>';
+    box.appendChild(f); f.onclick = function(){ starte(k); };
+  }
+  function vollbildAus(v){
+    try{ if(document.fullscreenElement) document.exitFullscreen(); }catch(e){}
+    try{ if(v && v.webkitDisplayingFullscreen) v.webkitExitFullscreen(); }catch(e){}
+  }
+  function starte(k, direkt){   /* direkt: kommt vom Start-Knopf „Weiterschauen“, dort wurde schon gefragt → nicht ein zweites Mal fragen */
+    var box = $('pbox'); box.innerHTML = '';
+    var v = document.createElement('video');
+    v.src = k.video + (k.video.indexOf('?') < 0 && k.dauer ? '?v=' + Math.round(k.dauer) : ''); /* neue Schnittfassung = neue Adresse, kein altes Video aus dem Zwischenspeicher */ v.controls = true; v.playsInline = true; v.setAttribute('playsinline',''); v.preload = 'auto';
+    if(k.poster) v.poster = k.poster;
+    box.appendChild(v); vid = v;
+    /* Ramy 10.11.: Kapitel sprang beim Öffnen auf Minute 7. Ursache: gespeicherte Stelle aus einer älteren
+       Schnittfassung. Jetzt: Stelle gilt nur für dieselbe Fassung (Dauer), und es wird nie still gesprungen,
+       sondern gefragt: „Weiterschauen bei 7:12“ oder „Von vorne“. */
+    var ab = st.pos[k.id] || 0;
+    if(!st.posd[k.id] || !k.dauer || Math.abs(st.posd[k.id] - k.dauer) > 2) ab = 0;
+    if(ab > 20 && k.dauer && ab < k.dauer - 30){
+      var fr = document.createElement('div'); fr.className = 'ende';
+      fr.innerHTML = '<div class="hak">Du warst schon bei '+uhr(ab)+'</div><button class="gross">▶ Weiterschauen</button><button class="nochmal">Von vorne beginnen</button>';
+      box.appendChild(fr);
+      /* Springen erst, wenn das Video seine Länge kennt; vorher setzt der Browser die Stelle sonst stillschweigend auf 0 zurück */
+      var los = function(t){
+        fr.remove();
+        var spring = function(){ try{ if(t) v.currentTime = t; }catch(e){} var p = v.play(); if(p && p.catch) p.catch(function(){}); };
+        if(v.readyState >= 1) spring(); else v.addEventListener('loadedmetadata', spring, {once: true});
+      };
+      fr.querySelector('.gross').onclick = function(){ los(ab); };
+      fr.querySelector('.nochmal').onclick = function(){ los(0); };
+      if(direkt) los(ab);
+    } else {
+      var p = v.play(); if(p && p.catch) p.catch(function(){});
+    }
+    var letzt = 0, vorher = null;
+    v.addEventListener('pause', function(){ if(!v.ended && v.currentTime > 15) erinnerKarte(k); });
+    v.addEventListener('play', function(){ var r = $('erinner'); if(r) r.remove(); });
+    v.addEventListener('timeupdate', function(){
+      /* echte Sehzeit zählen (Springen zählt nicht) */
+      if(vorher !== null){ var d = v.currentTime - vorher; if(d > 0 && d < 2){ st.sek = (st.sek || 0) + d; } }
+      vorher = v.currentTime;
+      if(Math.abs(v.currentTime - letzt) > 4){ letzt = v.currentTime; st.pos[k.id] = v.currentTime; st.posd[k.id] = k.dauer; speichern(); }
+      if(v.duration && v.currentTime / v.duration > 0.9 && !st.fertig[k.id]){ st.fertig[k.id] = 1; speichern(); punkte(); melde('kapitel_' + k.nr + '_gesehen'); if(anzahl() === K.length) melde('kurs_komplett'); }
+    });
+    v.addEventListener('ended', function(){
+      st.pos[k.id] = 0; st.fertig[k.id] = 1; speichern(); punkte(); vollbildAus(v);
+      var e = document.createElement('div'); e.className = 'ende';
+      var letztes = akt === K.length - 1;
+      /* 11.11.: Wer am Ende auf „Weiter“ tippt, sieht die Karten unter dem Video nie. Darum steht der Termin hier im Endbild:
+         nach Kap. 10 als Hauptknopf, nach Kap. 4/6/8 als zweiter Weg. */
+      if(letztes){
+        e.innerHTML = '<div class="hak">✓ Du hast den ganzen Kurs geschafft</div><a class="gross" data-termin href="#">📅 Termin wählen<small>dein kostenloses Gespräch mit Hischams Team</small></a>'
+          + '<div class="unten"><button class="nochmal" data-weiter>Zum Abschluss</button><button class="nochmal" data-nochmal>Nochmal ansehen</button></div>';
+      } else {
+        e.innerHTML = '<div class="hak">✓ Kapitel '+k.nr+' geschafft</div><button class="gross" data-weiter>' + (akt === 0 && brauchtTest() ? 'Jetzt dein Muster finden ›<small>2 Minuten · Ergebnis sofort</small>' : 'Weiter ›<small>Kapitel '+K[akt+1].nr+': '+K[akt+1].titel+'</small>') + '</button>'
+          + '<div class="unten">' + (TERMIN_NACH.indexOf(k.nr) > -1 ? '<a class="tlink" data-termin href="#">📅 Termin wählen</a>' : '')
+          + '<button class="nochmal" data-nochmal>Nochmal ansehen</button></div>';
+      }
+      box.appendChild(e); verknuepfen(e);
+      e.querySelector('[data-weiter]').onclick = weiter;
+      e.querySelector('[data-nochmal]').onclick = function(){ e.remove(); v.currentTime = 0; v.play(); };
+    });
+  }
+  function weiter(){
+    st.fertig[K[akt].id] = 1; speichern();
+    if(akt === K.length - 1) zeigeAnsicht('schluss');
+    else if(akt === 0 && brauchtTest()) zeigeAnsicht('test');
+    else { zeigeAnsicht('kapitel', akt + 1); var k = K[akt]; if(k.video) starte(k); }
+  }
+  function zurueck(){
+    if(!$('schluss').hidden){ zeigeAnsicht('kapitel', K.length - 1); return; }
+    if(!$('ttest').hidden){ zeigeAnsicht('kapitel', 0); return; }
+    if(akt === 0) zeigeAnsicht('start'); else zeigeAnsicht('kapitel', akt - 1);
+  }
+  $('weiter').onclick = function(){ if(!$('schluss').hidden){ terminGeklickt(); melde('termin_klick', {wo: 'leiste_ende'}, true); location.href = terminLink(); return; } weiter(); };
+  $('zurueck').onclick = zurueck;
+  $('losKnopf').onclick = function(){
+    if(fertigDa){ terminGeklickt(); melde('termin_klick', {wo: 'start_wieder'}, true); location.href = terminLink(); return; }
+    zeigeAnsicht('kapitel', st.letzt || 0); var k = K[akt]; if(k.video) starte(k, true);
+  };
+  $('zweitKnopf').onclick = function(){ if(testZuerst){ musterWaehlen(); return; } zeigeAnsicht('kapitel', K.length - 1); };
+
+  /* ===== Muster-Test im Kurs (17.11., Ramy) =====
+     Gleiche Aussagen, gleiche Auswertung und gleiche Ergebnis-Texte wie der Typ-Test (kurs-start.html), damit GHL
+     dieselben Felder bekommt (typ_muster, typ_ergebnis, typ_antworten). Ergebnis sofort, ohne Formular.
+     Wer noch unbekannt ist, trägt sich wie bisher vor Kapitel 3 ein; die Testdaten gehen dann mit. */
+  var T_SKALA = [['Gar nicht',0],['Etwas',1],['Ziemlich',2],['Genau so',3]];
+  var T_KEIN = 'Noch nichts davon';
+  var T_SCHRITTE = [
+    {art:'kapitel', nr:1, titel:'Dein Körper im Alltag', text:'9 kurze Aussagen. Tippe an, wie sehr sie auf dich zutreffen. Es gibt kein Richtig oder Falsch, nur dein Gefühl.'},
+    {art:'skala', id:'a1', typ:'A', q:'Ich wache nachts oft auf – meist zwischen 1 und 3 Uhr – und der Kopf fängt an zu rattern.'},
+    {art:'skala', id:'b1', typ:'B', q:'Ich esse eher wenig – und nehme trotzdem nicht ab.'},
+    {art:'skala', id:'c1', typ:'C', q:'Morgens wache ich auf, als hätte ich gar nicht geschlafen.'},
+    {art:'skala', id:'a2', typ:'A', q:'Abends brauche ich etwas Süßes oder Cremiges, um runterzukommen.'},
+    {art:'skala', id:'b2', typ:'B', q:'Nach einer Diät kommt alles schnell zurück – oft sogar mehr.'},
+    {art:'skala', id:'c2', typ:'C', q:'Für Sport oder einen neuen Plan fehlt mir schlicht die Kraft.'},
+    {art:'skala', id:'a3', typ:'A', q:'Bei Stress wird mein Bauch dicker.'},
+    {art:'skala', id:'b3', typ:'B', q:'Ich friere schnell und fühle mich nach dem Essen schwer oder aufgebläht.'},
+    {art:'skala', id:'c3', typ:'C', q:'Kleinigkeiten überfordern mich schneller als früher.'},
+    {art:'kapitel', nr:2, titel:'Deine Geschichte', text:'Zwei kurze Fragen dazu, was du schon hinter dir hast.'},
+    {art:'mehr', id:'versucht', q:'Was hast du schon ausprobiert?', hint:'Tippe alles an, was passt.',
+      a:['Diäten / Kalorien zählen','Intervallfasten','Shakes oder Pulver','Abnehmspritze','Fitnessstudio / Sport','Apps oder Programme','Ernährungsberatung','Beim Arzt nachgefragt','Noch nichts davon']},
+    {art:'eins', id:'seit', q:'Seit wann beschäftigt dich das Thema schon?', a:['Weniger als 1 Jahr','1 bis 3 Jahre','3 bis 10 Jahre','Länger als 10 Jahre']},
+    {art:'kapitel', nr:3, titel:'Dein Ziel', text:'Zum Schluss: Wo willst du hin?'},
+    {art:'mehr', id:'ziel', q:'Was soll sich in 6 Monaten verändert haben?', hint:'Tippe alles an, was dir wichtig ist.',
+      a:['Die Kleidung passt wieder','Mehr Energie im Alltag','Besser schlafen','Ruhe im Kopf','Weniger Heißhunger','Bessere Blutwerte','Mich wieder wohlfühlen']},
+    {art:'zahl', id:'wichtig', q:'Wie wichtig ist dir das gerade?', links:'geht so', rechts:'sehr wichtig'}
+  ];
+  var T_ERGEBNIS = {
+    'A':     ['A · Alarm', 'Dein System steht unter Daueralarm. Der Kopf kommt nicht zur Ruhe, nachts wird es unruhig – und bei Stress hält dein Körper fest, egal wie diszipliniert du bist.'],
+    'B':     ['B · Bunker', 'Dein Körper hat gelernt zu sparen. Du isst wenig, aber er gibt nichts her – und nach jeder Diät hortet er noch mehr. Das ist kein Willensproblem, sondern ein Schutzprogramm.'],
+    'C':     ['C · Crash', 'Deine Reserven sind leer. Du wachst müde auf, die Kraft fehlt – und ein leerer Körper lässt nichts los.'],
+    'A+B':   ['A und B · Alarm im Bunker', 'Zwei Muster gleichzeitig: Der Kopf kommt nicht zur Ruhe – und der Körper spart. Hellwach in der Nacht und trotz wenig Essen bewegt sich nichts.'],
+    'A+C':   ['A und C · Alarm im Crash', 'Innerlich aufgedreht, außen längst leer. Du kannst schlecht abschalten – und hast trotzdem keine Kraft mehr.'],
+    'B+C':   ['B und C · Bunker im Crash', 'Dein Körper spart und die Reserven sind leer. „Ich nehme zu, obwohl ich kaum noch etwas habe“ – das ist kein Widerspruch.'],
+    'A+B+C': ['Alle drei Muster', 'Bei dir zeigen sich Alarm, Bunker und Crash gleichzeitig. Hier ist die richtige Reihenfolge besonders wichtig.'],
+    'offen': ['Noch offen', 'Deine Antworten zeigen kein eindeutiges Muster. Das ist nicht ungewöhnlich – manchmal liegt der Grund dort, wo man von außen nicht hinschaut. Genau das klären wir im Gespräch.']
+  };
+  var T_MEDIA = D.musterMedia || '../media/';
+  var T_VIDEO = {A:'muster-a', B:'muster-b', C:'muster-c', M:'muster-m'};
+  var tw = {}, tpos = 0, tsperre = false;
+  function tPunkte(){ var p = {A:0,B:0,C:0}; T_SCHRITTE.forEach(function(s){ if(s.art==='skala' && tw[s.id]!=null) p[s.typ]+=tw[s.id]; }); return p; }
+  function tAuswerten(){
+    var p = tPunkte(), r = ['A','B','C'].sort(function(x,y){ return p[y]-p[x]; });
+    var a = p[r[0]], b = p[r[1]], c = p[r[2]];
+    if(a<=2) return 'offen';
+    if(c>=5 && a-c<=2) return 'A+B+C';
+    if(b>=4 && a-b<=2) return [r[0],r[1]].sort().join('+');
+    return r[0];
+  }
+  function tZusammenfassung(){
+    var p = tPunkte();
+    return 'Alarm '+p.A+'/9 · Bunker '+p.B+'/9 · Crash '+p.C+'/9 | Versucht: '+(tw.versucht||[]).join(', ')+' | Seit: '+(tw.seit||'-')
+      + ' | Ziel: '+(tw.ziel||[]).join(', ')+' | Wichtig: '+(tw.wichtig||'-')+'/10 | Einzelwerte: '
+      + T_SCHRITTE.filter(function(s){ return s.art==='skala'; }).map(function(s){ return s.id+'='+tw[s.id]; }).join(' ') + ' | im Kurs';
+  }
+  function tKapitel(){ var k = T_SCHRITTE[0]; for(var j=0;j<=tpos;j++){ if(T_SCHRITTE[j].art==='kapitel') k = T_SCHRITTE[j]; } return k; }
+  function testZeigen(){
+    $('kNr').textContent = 'Dein Muster-Test';
+    if(st.typ){ tErgebnis(); return; }
+    if(tpos === 0 && !tw.gestartet){ tw.gestartet = 1; melde('test_gestartet'); try{ if(window.fbq) fbq('trackCustom', 'KursTest', {schritt: 'start'}); }catch(e){} }
+    tsperre = false;
+    var s = T_SCHRITTE[tpos], k = tKapitel(), c = $('tKarte');
+    var h = '<div class="tkopf"><button type="button" id="tZur" class="'+(tpos>0?'an':'')+'">‹ zurück</button><span>Teil '+k.nr+' von 3 · '+esc(k.titel)+'</span></div>'
+      + '<div class="tbal"><i style="width:'+Math.round(tpos/T_SCHRITTE.length*100)+'%"></i></div>';
+    if(s.art==='kapitel'){
+      h += '<div class="tk-k">'+(s.nr===1?'Dein Muster · 2 Minuten':'Teil '+s.nr)+'</div><div class="tk-q">'+esc(s.nr===1?'Welches Muster steht bei dir im Vordergrund?':s.titel)+'</div><p class="tk-p">'+esc(s.text)+'</p>'
+        + '<button type="button" class="gross" id="tGo">'+(s.nr===1?'Los geht\'s ›':'Weiter ›')+'</button>';
+    } else if(s.art==='skala'){
+      h += '<div class="tk-q">„'+esc(s.q)+'“</div><div class="tk-opts">' + T_SKALA.map(function(o){ return '<button type="button" data-v="'+o[1]+'" class="'+(tw[s.id]===o[1]?'sel':'')+'">'+o[0]+'</button>'; }).join('') + '</div>';
+    } else if(s.art==='eins'){
+      h += '<div class="tk-q">'+esc(s.q)+'</div><div class="tk-opts">' + s.a.map(function(t){ return '<button type="button" data-v="'+esc(t)+'" class="'+(tw[s.id]===t?'sel':'')+'">'+esc(t)+'</button>'; }).join('') + '</div>';
+    } else if(s.art==='mehr'){
+      var gew = tw[s.id] || [];
+      h += '<div class="tk-q">'+esc(s.q)+'</div><p class="tk-p">'+esc(s.hint)+'</p><div class="tk-chips">' + s.a.map(function(t){ return '<button type="button" data-c="'+esc(t)+'" class="'+(gew.indexOf(t)>-1?'sel':'')+'">'+esc(t)+'</button>'; }).join('') + '</div>'
+        + '<button type="button" class="gross" id="tGo"'+(gew.length?'':' disabled')+'>Weiter ›</button>';
+    } else if(s.art==='zahl'){
+      h += '<div class="tk-q">'+esc(s.q)+'</div><div class="tk-opts zahl">';
+      for(var z=1; z<=10; z++) h += '<button type="button" data-v="'+z+'" class="'+(tw[s.id]===z?'sel':'')+'">'+z+'</button>';
+      h += '</div><div class="tk-lr"><span>'+esc(s.links)+'</span><span>'+esc(s.rechts)+'</span></div>';
+    }
+    c.innerHTML = h;
+    $('tZur').onclick = function(){ if(tpos > 0){ tpos--; testZeigen(); } };
+    var go = $('tGo'); if(go) go.onclick = function(){ if(tsperre) return; tsperre = true; tWeiter(); };
+    c.querySelectorAll('[data-v]').forEach(function(b){ b.onclick = function(){
+      if(tsperre) return; tsperre = true;
+      c.querySelectorAll('[data-v]').forEach(function(x){ x.classList.remove('sel'); }); b.classList.add('sel');
+      var v = b.getAttribute('data-v'); tw[s.id] = (s.art==='skala'||s.art==='zahl') ? parseInt(v,10) : v;
+      setTimeout(tWeiter, 230);
+    }; });
+    c.querySelectorAll('[data-c]').forEach(function(b){ b.onclick = function(){
+      var v = b.getAttribute('data-c'), gew = tw[s.id] || [];
+      if(gew.indexOf(v) > -1) gew = gew.filter(function(x){ return x !== v; });
+      else if(v === T_KEIN) gew = [T_KEIN];
+      else { gew = gew.filter(function(x){ return x !== T_KEIN; }); gew.push(v); }
+      tw[s.id] = gew;
+      c.querySelectorAll('[data-c]').forEach(function(x){ x.classList.toggle('sel', gew.indexOf(x.getAttribute('data-c')) > -1); });
+      $('tGo').disabled = !gew.length;
+    }; });
+    window.scrollTo(0, 0);
+  }
+  function tWeiter(){
+    tpos++;
+    if(tpos < T_SCHRITTE.length){ testZeigen(); return; }
+    var m = tAuswerten();
+    st.typ = {m: m, e: T_ERGEBNIS[m][0] + ' – ' + T_ERGEBNIS[m][1], a: tZusammenfassung(), d: new Date().toISOString()};
+    if(m !== 'offen'){ st.url_m = m; mein = m.split('+'); }
+    speichern();
+    try{ if(m !== 'offen') localStorage.setItem('typ_muster', m); kk.m = m; localStorage.setItem('kurs_kontakt', JSON.stringify(kk)); }catch(e){}
+    melde('test_fertig', {}, true);
+    try{ if(window.fbq) fbq('trackCustom', 'KursTest', {schritt: 'fertig', muster: m}); }catch(e){}
+    if(mein.length){ $('muster').hidden = false; $('musterBu').textContent = mein.join('+'); $('musterT').textContent = 'Dein Muster: ' + mein.map(function(x){ return NAME[x]; }).join(' & '); }
+    tErgebnis();
+  }
+  function tErgebnis(){
+    var m = st.typ.m, t = T_ERGEBNIS[m] || T_ERGEBNIS.offen, c = $('tKarte');
+    var vk = m === 'offen' ? '' : (m.indexOf('+') > 0 ? 'M' : m);
+    c.innerHTML = '<div class="terg"><div class="tk-k">Dein Ergebnis</div>'
+      + '<div class="bu">' + (m === 'offen' ? '?' : esc(m)) + '</div><h2>' + esc(t[0]) + '</h2><p class="tk-p">' + esc(t[1]) + '</p>'
+      + (vk ? '<div class="vtitel">Hischam erklärt dir dein Muster · etwa 1 Minute</div><div class="player"><div class="ar" id="tVbox"></div></div>' : '')
+      + '<p class="tk-p" style="margin-top:16px">Ab jetzt ist der Kurs auf dein Muster zugeschnitten. Dein Ergebnis ist hier gespeichert.</p>'
+      + '<button type="button" class="gross" id="tKurs">Weiter mit dem Kurs ›<small>Kapitel ' + K[1].nr + ': ' + esc(K[1].titel) + '</small></button></div>';
+    if(vk){
+      var box = $('tVbox'), f = document.createElement('button'); f.className = 'vstart'; f.setAttribute('aria-label', 'Video abspielen');
+      f.style.backgroundImage = 'url(' + T_MEDIA + T_VIDEO[vk] + '.jpg)';
+      f.innerHTML = '<div class="play"><span></span>Video abspielen</div>'; box.appendChild(f);
+      f.onclick = function(){
+        var v = document.createElement('video'); v.src = T_MEDIA + T_VIDEO[vk] + '.mp4'; v.controls = true; v.playsInline = true; v.setAttribute('playsinline', '');
+        v.poster = T_MEDIA + T_VIDEO[vk] + '.jpg'; box.innerHTML = ''; box.appendChild(v); vid = v;
+        var p = v.play(); if(p && p.catch) p.catch(function(){});
+        v.addEventListener('ended', function(){ vollbildAus(v); melde('test_video_gesehen'); });
+      };
+    }
+    $('tKurs').onclick = function(){ zeigeAnsicht('kapitel', 1); var k = K[akt]; if(k.video) starte(k); };
+    window.scrollTo(0, 0);
+  }
+
+  /* Abschluss */
+  function schluss(){
+    $('kNr').textContent = 'Geschafft'; akt = K.length; punkte(); st.abschluss = 1; speichern();
+    $('sH').innerHTML = D.schluss.titel; $('sP').textContent = D.schluss.text;
+    $('sCheck').innerHTML = gespraechKarte(false); $('sTeilen').innerHTML = teilenKarte(); verknuepfen($('sTeilen'));
+    $('sKnopf').href = terminLink(); $('sKnopf').textContent = D.schluss.knopf;
+    $('weiter').innerHTML = D.schluss.knopf + ' ›';
+    melde('abschluss_gesehen');
+  }
+  $('sKnopf').onclick = function(){ terminGeklickt(); melde('termin_klick', {wo: 'abschluss'}, true); };
+
+  /* Übersicht */
+  $('alleKnopf').onclick = function(){
+    $('liste').innerHTML = K.map(function(k,i){
+      return '<button class="kap'+(st.fertig[k.id]?' ok':'')+(i===akt?' aktiv':'')+'" data-i="'+i+'"><span class="n">'+(st.fertig[k.id]?'✓':k.nr)+'</span><span><b>'+k.titel+'</b><span class="d">'+minuten(k.dauer||0)+'</span></span></button>';
+    }).join('');
+    $('liste').querySelectorAll('.kap').forEach(function(b){ b.onclick = function(){ $('uebersicht').hidden = true; zeigeAnsicht('kapitel', +b.dataset.i); }; });
+    $('uebersicht').hidden = false;
+  };
+  $('zu').onclick = function(){ $('uebersicht').hidden = true; };
+  $('uebersicht').onclick = function(e){ if(e.target === $('uebersicht')) $('uebersicht').hidden = true; };
+
+  /* Gesprächs-Karte (Kapitel 10 mit Knopf, Abschluss ohne, dort steht der große Knopf darunter). Ramy 11.11.: kein Check mehr im Kurs */
+  function gespraechKarte(mitKnopf){
+    var c = D.gespraech; if(!c) return '';
+    return '<div class="check"><div class="ck">'+c.kick+'</div><h3>'+c.titel+'</h3><p>'+c.text+'</p><ul>'+c.punkte.map(function(p){ return '<li>'+p+'</li>'; }).join('')+'</ul>' +
+      '<div class="preis">'+c.fakten+'</div>' + (mitKnopf ? '<a class="gross" data-termin href="#">'+c.knopf+'</a><div class="danach">'+c.danach+'</div>' : '') + '</div>';
+  }
+
+  /* Mitmachen (freiwillig) */
+  var AUF = {
+    satz: function(k, el){
+      var a = k.aufgabe;
+      el.innerHTML = '<div class="aufgabe"><div class="frei">Kurz mitmachen · freiwillig</div><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><textarea id="satzT" rows="2" maxlength="160" placeholder="'+esc(a.platzhalter)+'">'+esc(st.ein.satz)+'</textarea><div class="antwort" id="satzA">✓ Gespeichert. In Kapitel 9 holen wir ihn wieder hervor.</div></div>';
+      var t = $('satzT');
+      t.oninput = function(){ st.ein.satz = t.value.trim(); speichern(); $('satzA').classList.toggle('da', !!st.ein.satz); };
+      $('satzA').classList.toggle('da', !!st.ein.satz);
+    },
+    bisher: function(k, el){
+      var a = k.aufgabe, s = st.ein.satz;
+      el.innerHTML = '<div class="aufgabe"><div class="frei">Kurz mitmachen · freiwillig</div><h3>'+a.frage+'</h3>' + (s
+        ? '<p>'+a.hinweis+'</p><div style="margin-top:14px;background:linear-gradient(170deg,#fff6b8,#fde98a);border-radius:6px;padding:20px 22px;font-family:Georgia,serif;font-size:1.3rem;line-height:1.4;box-shadow:0 10px 26px rgba(0,0,0,.12)"><b style="color:var(--green-d)">Bisher</b> '+esc(s.charAt(0).toLowerCase()+s.slice(1))+'</div><div class="antwort da">Ein Wort, und aus einem Urteil wird eine Geschichte, die weitergehen kann.</div>'
+        : '<p>Denk an den Satz, den du am häufigsten zu dir sagst, und setz in Gedanken das Wort <b>„Bisher“</b> davor.</p>') + '</div>';
+    },
+    versucht: function(k, el){
+      var a = k.aufgabe, sel = st.ein.versucht || [];
+      el.innerHTML = '<div class="aufgabe"><div class="frei">Kurz mitmachen · freiwillig</div><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><div class="haken">'+a.optionen.map(function(o){
+        return '<label class="'+(sel.indexOf(o)>-1?'an':'')+'"><input type="checkbox" value="'+o+'"'+(sel.indexOf(o)>-1?' checked':'')+'> '+o+'</label>'; }).join('')+'</div><div class="antwort" id="vAntw"></div></div>';
+      function upd(){
+        var s = [].slice.call(el.querySelectorAll('input:checked')).map(function(i){ return i.value; });
+        st.ein.versucht = s; speichern();
+        el.querySelectorAll('label').forEach(function(l){ l.classList.toggle('an', l.querySelector('input').checked); });
+        var an = $('vAntw'); an.classList.toggle('da', s.length > 0);
+        an.innerHTML = s.length >= 3 ? '<b>'+s.length+' Wege.</b> '+a.viel : (s.length ? a.wenig : '');
+      }
+      el.querySelectorAll('input').forEach(function(i){ i.onchange = upd; }); upd();
+    },
+    ring: function(k, el){
+      var a = k.aufgabe, w = st.ein.ring || a.bereiche.map(function(){ return 0; });
+      var stufen = [['schwach',2],['mittel',5],['gut',8]];
+      function stufe(x){ return !x ? -1 : x <= 3 ? 0 : x <= 6 ? 1 : 2; }
+      el.innerHTML = '<div class="aufgabe"><div class="frei">Kurz mitmachen · freiwillig</div><h3>'+a.frage+'</h3><p>Tippe bei jedem Bereich an, wie es sich gerade anfühlt. Ein Bauchgefühl reicht.</p><div class="wahl">'+a.bereiche.map(function(b,i){
+        return '<div class="z"><b>'+b+'</b><div class="k3">'+stufen.map(function(s,j){ return '<button data-i="'+i+'" data-w="'+s[1]+'" class="'+(stufe(w[i])===j?'an':'')+(j===0?' s':'')+'">'+s[0]+'</button>'; }).join('')+'</div></div>'; }).join('')+'</div><div class="antwort" id="rAntw"></div></div>';
+      function antwort(){
+        var gesetzt = w.filter(function(x){ return x; }).length, schwach = a.bereiche.filter(function(b,i){ return w[i] && w[i] <= 3; });
+        var an = $('rAntw'); an.classList.toggle('da', gesetzt > 0);
+        an.innerHTML = schwach.length ? 'Als schwach hast du <b>'+schwach.join(', ')+'</b> eingeschätzt. '+a.schwach : (gesetzt ? 'Gut. Im Gespräch schauen wir, ob die Werte das bestätigen.' : '');
+      }
+      el.querySelectorAll('.k3 button').forEach(function(b){ b.onclick = function(){
+        var i = +b.dataset.i; w[i] = +b.dataset.w; st.ein.ring = w; speichern();
+        b.parentNode.querySelectorAll('button').forEach(function(x){ x.classList.toggle('an', x === b); });
+        antwort();
+      }; });
+      antwort();
+    },
+    muster: function(k, el){
+      var a = k.aufgabe;
+      el.innerHTML = '<div class="aufgabe"><div class="frei">Dein Muster</div><h3>'+a.frage+'</h3><p>'+(mein.length ? a.mit : a.ohne)+'</p><div class="muster3">'+['A','B','C'].map(function(x){
+        return '<div class="mu'+(mein.indexOf(x)>-1?' ich':'')+'"><div class="bu">'+x+'</div><h4>'+NAME[x]+'</h4><p>'+a.text[x]+'</p><div class="tag">✓ Dein Muster</div></div>'; }).join('')+'</div>'+(mein.length?'':'<button class="gross" type="button" data-zumtest style="margin-top:16px">Mein Muster finden ›<small>2 Minuten · direkt hier im Kurs</small></button>')+'</div>';
+      var zt = el.querySelector('[data-zumtest]'); if(zt) zt.onclick = function(){ zeigeAnsicht('test'); };
+    },
+    rechner: function(k, el){
+      var a = k.aufgabe, e = st.ein.rechner || {jahre:'', monat:'', versuche:''};
+      el.innerHTML = '<div class="aufgabe"><div class="frei">Kurz mitmachen · freiwillig</div><h3>'+a.frage+'</h3><p>'+a.hinweis+'</p><div class="rechner">'+
+        '<label>Seit wie vielen Jahren versuchst du es?<input type="number" inputmode="numeric" min="0" max="60" id="rJ" value="'+e.jahre+'" placeholder="z. B. 8"></label>'+
+        '<label>Was hast du im Monat ungefähr ausgegeben? (Euro)<input type="number" inputmode="numeric" min="0" max="5000" id="rM" value="'+e.monat+'" placeholder="Shakes, Studio, Programme …"></label>'+
+        '<label>Wie oft hast du ungefähr neu angefangen?<input type="number" inputmode="numeric" min="0" max="200" id="rV" value="'+e.versuche+'" placeholder="z. B. 6"></label>'+
+        '</div><div class="summe" id="rSum"></div><div class="antwort da">'+a.schluss+'</div></div>';
+      function upd(){
+        e = {jahre:$('rJ').value, monat:$('rM').value, versuche:$('rV').value}; st.ein.rechner = e; speichern();
+        var j = +e.jahre||0, m = +e.monat||0, v = +e.versuche||0;
+        $('rSum').innerHTML = (j||m||v) ? '<div><b>'+(j*12*m).toLocaleString('de-DE')+' €</b><span>ungefähr ausgegeben</span></div><div><b>'+j+' Jahre</b><span>mit dem Thema gelebt</span></div><div><b>'+v+'×</b><span>wieder von vorn angefangen</span></div>' : '';
+      }
+      ['rJ','rM','rV'].forEach(function(id){ $(id).oninput = upd; }); upd();
+    }
+  };
+
+  /* Beim Öffnen: direkt dort weitermachen, wo der Link hinzeigt (#k3), sonst Start */
+  var h = location.hash.match(/^#k(\d+)$/);
+  try{ history.replaceState({was:'start'}, '', location.pathname + location.search); }catch(e){}
+  /* alte Mail-Links zeigen bis #k10: auf das letzte Kapitel begrenzen */
+  if(location.hash === '#test' && brauchtTest()){ zeigeAnsicht('test'); } else if(h){ zeigeAnsicht('kapitel', Math.max(1, Math.min(+h[1], K.length)) - 1); } else if(location.hash === '#ende'){ zeigeAnsicht('schluss'); }
+  melde('kurs_geoeffnet');
+})();
+</script>
+</body>
+</html>
