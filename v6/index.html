@@ -239,6 +239,13 @@
   .terg .tk-p{max-width:560px;margin-left:auto;margin-right:auto;}
   .terg .player{text-align:left;}
   .terg .vtitel{margin-top:20px;font-weight:800;color:var(--ink2);}
+  /* 21.11. (Ramy): Wer über den Typ-Test schon ein Gespräch gebucht hat, bekommt den Kurs als Geschenk.
+     Dort braucht es kein „Termin wählen“ mehr. */
+  html.gebucht [data-termin],html.gebucht #tbar{display:none !important;}
+  .geschenkzeile{display:inline-block;margin:0 auto 10px;background:#fff6dd;color:#7a5200;border:1px solid #f0d58f;border-radius:30px;padding:6px 14px;font-weight:800;font-size:.92rem;}
+  .gebuchtkarte{margin-top:22px;border:2px solid var(--green);background:var(--green-bg);border-radius:18px;padding:18px;}
+  .gebuchtkarte h3{font-size:1.2rem;font-weight:800;line-height:1.3;}
+  .gebuchtkarte p{margin-top:6px;color:var(--ink2);font-size:1.02rem;}
 </style>
 </head>
 <body>
@@ -289,7 +296,7 @@
     <div class="hint">Dieser Kurs dient der Information und ersetzt keine ärztliche Untersuchung. Keine Heilversprechen. Erfahrungen einzelner Menschen sind nicht übertragbar, jeder Körper ist anders.</div>
   </div>
   <div class="leiste">
-    <a class="tbar" id="tbar" data-termin href="#" hidden><span>📅 Kostenloses Gespräch wählen<small>per Video · etwa 45 Minuten</small></span></a>
+    <a class="tbar" id="tbar" data-termin href="#" hidden><span>📅 Kostenloses Gespräch wählen<small>etwa 15 Minuten</small></span></a>
     <div class="in">
     <button class="zur" id="zurueck">‹ Zurück</button>
     <button class="gross" id="weiter"></button>
@@ -403,6 +410,11 @@ window.KURS = {
   ['n','m','c','p'].forEach(function(x){ var v = q.get(x); if(v !== null && v !== '' && !/\{\{/.test(v)){ st['url_'+x] = v; } });
   if(q.get('q') && !st.quelle) st.quelle = q.get('q').slice(0,30);
   if(q.get('von') && !st.von) st.von = q.get('von').slice(0,40);
+  /* 21.11. (Ramy): Gespräch schon gebucht? (Link aus der Ergebnis-Seite mit g=1 oder Buchung auf diesem Gerät) */
+  if(q.get('g') === '1') st.gebucht = 1;
+  try{ if(localStorage.getItem('termin_gebucht')) st.gebucht = 1; }catch(e){}
+  var gebucht = !!st.gebucht;
+  if(gebucht) document.documentElement.classList.add('gebucht');
   /* Gemeinsamer Speicher mit der Typ-Test-Danke-Seite (gleiche Domain hischamelsobhi.de) */
   var kk = {};
   try{ kk = JSON.parse(localStorage.getItem('kurs_kontakt') || '{}') || {}; }catch(e){}
@@ -513,7 +525,7 @@ window.KURS = {
   if(fertigDa){
     $('hallo').textContent = name ? 'Schön, dass du wieder da bist, ' + name + '.' : 'Schön, dass du wieder da bist.';
     $('startSatz').textContent = st.termin ? 'Du hast den ganzen Kurs gesehen. Falls dein Termin noch nicht steht: Hier wählst du ihn in einer Minute.' : 'Du hast den ganzen Kurs gesehen. Jetzt fehlt nur noch ein Schritt: dein kostenloses Gespräch mit Hischams Team.';
-    $('losT').textContent = '📅 Termin wählen'; $('losS').textContent = 'per Video · etwa 45 Minuten · kostenlos';
+    $('losT').textContent = '📅 Termin wählen'; $('losS').textContent = 'etwa 15 Minuten · kostenlos';
     $('zweitKnopf').hidden = false; $('zweitKnopf').textContent = 'Lieber nochmal in den Kurs schauen';
   }
   /* v6 (Ramy 16.11.): Der Kurs beginnt mit dem eigenen Muster. Wer weder bekannt ist noch sein Muster kennt
@@ -529,6 +541,17 @@ window.KURS = {
     $('startSatz').textContent = 'Hischam erklärt dir in ' + K.length + ' kurzen Kapiteln, warum dein Körper festhält. Nach Kapitel 1 findest du in 2 Minuten heraus, welches Muster bei dir im Vordergrund steht. Ab da ist der Kurs auf dich zugeschnitten.';
     $('losS').textContent = 'Kapitel 1: ' + K[0].titel + ' · danach dein Muster-Test';
     $('zweitKnopf').hidden = false; $('zweitKnopf').textContent = 'Ich habe den Test schon gemacht';
+  }
+  /* 21.11. (Ramy): Kurs als Geschenk nach dem gebuchten Gespräch. Kein Termin-Knopf, dafür ein Geschenk-Hinweis. */
+  if(gebucht){
+    var gz = document.createElement('div'); gz.className = 'geschenkzeile'; gz.textContent = '🎁 Geschenk zu deinem Gespräch';
+    $('hallo').parentNode.insertBefore(gz, $('hallo'));
+    if(fertigDa){
+      $('startSatz').textContent = 'Du hast den ganzen Kurs gesehen und dein Gespräch steht. Hier kannst du jedes Kapitel nochmal ansehen.';
+      $('losT').textContent = '▶ Nochmal ansehen'; $('losS').textContent = ''; $('zweitKnopf').hidden = true;
+    } else if(!anzahl() && !testZuerst){
+      $('startSatz').textContent = 'Dein Gespräch steht. Bis dahin erklärt dir Hischam in ' + K.length + ' kurzen Kapiteln, warum dein Körper festhält. So kommst du gut vorbereitet ins Gespräch.';
+    }
   }
   function musterWaehlen(){
     var w = document.createElement('div'); w.className = 'mwahl';
@@ -592,7 +615,7 @@ window.KURS = {
     $('zurueck').disabled = false;
     punkte(); player(k);
     var r = $('erinner'); if(r) r.remove();
-    var tb = $('tbar'); if(tb){ tb.hidden = akt < 2; document.body.classList.toggle('mitTermin', akt >= 2); }
+    var tb = $('tbar'); if(tb){ tb.hidden = akt < 2 || gebucht; document.body.classList.toggle('mitTermin', akt >= 2 && !gebucht); }
     if(akt >= 1) setTimeout(function(){ zugangPruefen(); waPruefen(); }, 0);
   }
 
@@ -606,9 +629,10 @@ window.KURS = {
   }
   /* Wer schon weiß, dass sie Begleitung will, soll nicht bis Kapitel 10 warten müssen (Ramy 10.11.) */
   function terminKarte(){
+    if(gebucht) return '';
     return '<div class="tkarte"><div class="ck">Schon klar für dich?</div><h3>Du weißt schon, dass du ärztlich begleitet werden möchtest?</h3>'
       + '<p>Dann wähl dir jetzt einen festen Termin für dein persönliches Gespräch. Wir schauen gemeinsam, wie es bei dir genau aussieht. Den Kurs kannst du trotzdem zu Ende schauen.</p>'
-      + '<a class="gross" data-termin href="#">📅 Meinen Termin wählen<small>per Video · etwa 45 Minuten · kostenlos</small></a></div>';
+      + '<a class="gross" data-termin href="#">📅 Meinen Termin wählen<small>etwa 15 Minuten · kostenlos</small></a></div>';
   }
   function teilenKarte(){
     return '<div class="teilk"><b>Kennst du jemanden, dem es genauso geht?</b><p>Schick ihr Hischams Kurs. Sie schaut in ihrem Tempo, kostenlos.</p>'
@@ -826,10 +850,10 @@ window.KURS = {
     if(!$('ttest').hidden){ zeigeAnsicht('kapitel', 0); return; }
     if(akt === 0) zeigeAnsicht('start'); else zeigeAnsicht('kapitel', akt - 1);
   }
-  $('weiter').onclick = function(){ if(!$('schluss').hidden){ terminGeklickt(); melde('termin_klick', {wo: 'leiste_ende'}, true); location.href = terminLink(); return; } weiter(); };
+  $('weiter').onclick = function(){ if(!$('schluss').hidden && gebucht){ $('alleKnopf').click(); return; } if(!$('schluss').hidden){ terminGeklickt(); melde('termin_klick', {wo: 'leiste_ende'}, true); location.href = terminLink(); return; } weiter(); };
   $('zurueck').onclick = zurueck;
   $('losKnopf').onclick = function(){
-    if(fertigDa){ terminGeklickt(); melde('termin_klick', {wo: 'start_wieder'}, true); location.href = terminLink(); return; }
+    if(fertigDa && !gebucht){ terminGeklickt(); melde('termin_klick', {wo: 'start_wieder'}, true); location.href = terminLink(); return; }
     zeigeAnsicht('kapitel', st.letzt || 0); var k = K[akt]; if(k.video) starte(k, true);
   };
   $('zweitKnopf').onclick = function(){ if(testZuerst){ musterWaehlen(); return; } zeigeAnsicht('kapitel', K.length - 1); };
@@ -976,6 +1000,7 @@ window.KURS = {
     $('sCheck').innerHTML = gespraechKarte(false); $('sTeilen').innerHTML = teilenKarte(); verknuepfen($('sTeilen'));
     $('sKnopf').href = terminLink(); $('sKnopf').textContent = D.schluss.knopf;
     $('weiter').innerHTML = D.schluss.knopf + ' ›';
+    if(gebucht){ $('sKnopf').hidden = true; $('weiter').innerHTML = 'Alle Kapitel ansehen ›'; }
     melde('abschluss_gesehen');
   }
   $('sKnopf').onclick = function(){ terminGeklickt(); melde('termin_klick', {wo: 'abschluss'}, true); };
@@ -994,6 +1019,7 @@ window.KURS = {
   /* Gesprächs-Karte (Kapitel 10 mit Knopf, Abschluss ohne, dort steht der große Knopf darunter). Ramy 11.11.: kein Check mehr im Kurs */
   function gespraechKarte(mitKnopf){
     var c = D.gespraech; if(!c) return '';
+    if(gebucht) return '<div class="gebuchtkarte"><h3>✓ Dein Gespräch ist schon gebucht</h3><p>Bring gern alles mit, was dir im Kurs aufgefallen ist. Im Gespräch schauen wir gemeinsam, was das für dich bedeutet.</p></div>';
     return '<div class="check"><div class="ck">'+c.kick+'</div><h3>'+c.titel+'</h3><p>'+c.text+'</p><ul>'+c.punkte.map(function(p){ return '<li>'+p+'</li>'; }).join('')+'</ul>' +
       '<div class="preis">'+c.fakten+'</div>' + (mitKnopf ? '<a class="gross" data-termin href="#">'+c.knopf+'</a><div class="danach">'+c.danach+'</div>' : '') + '</div>';
   }
