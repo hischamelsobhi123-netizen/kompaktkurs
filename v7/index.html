@@ -198,13 +198,13 @@
   var mv = m ? (m.length === 1 ? MUSTER[m][0] : 'muster-m') : '';
   var MNAME = m ? (m.length === 1 ? m + ' · ' + MUSTER[m][1] : m + ' · Mischmuster') : '';
   var TEILE = [
-    { nr: 1, kurz: 'Dein Muster', titel: m ? 'Dein Muster: ' + MNAME : 'Die drei Muster',
-      unter: m ? 'Hischam erklärt dir, was hinter deinem Ergebnis steckt.' : 'Hischam erklärt dir, welche drei Muster er in seiner Praxis immer wieder sieht.',
-      video: mv ? TT + 'typ-test/v6/media/' + mv + '.mp4' : TT + 'typ-test/v6/media/typen-erklaerung.mp4',
-      poster: mv ? TT + 'typ-test/v6/media/' + mv + '.jpg' : TT + 'typ-test/v6/media/typen-erklaerung.jpg',
-      laenge: mv ? '1:20 Min' : '1:07 Min',
-      merk: 'Dein Muster ist kein Urteil über dich. Es zeigt, <b>wie dein Körper dich schützt</b>.',
-      naechst: 'Warum Disziplin allein dabei nicht hilft und wie Hischam arbeitet.' },
+    /* 27.11. abends (Ramy: Workshop-Muster-Clip „absolut scheiße“, A/B/C nicht auserzählt): Studio-Video „So arbeitet Hischam“
+       bis „… an der falschen Reihenfolge“ (2:45). Erklärt Anna, A Alarm, B Bunker, C Crash und M Misch vollständig. */
+    { nr: 1, kurz: 'Dein Muster', titel: 'Die drei Muster und was deins bedeutet',
+      unter: (m ? 'Dein Ergebnis: <b>' + MNAME + '</b>. ' : '') + 'Hischam erklärt dir Alarm, Bunker, Crash und das Mischmuster und warum Standardpläne daran scheitern.',
+      video: KK + 'v7/media/teil1.mp4', poster: KK + 'v7/media/teil1.jpg', laenge: '2:45 Min',
+      merk: 'Dein Muster ist kein Urteil über dich. Es zeigt, <b>was dein Körper zuerst braucht</b>.',
+      naechst: 'Warum Disziplin allein nicht hilft und wie Hischam arbeitet.' },
     { nr: 2, kurz: 'Hischam erklärt', titel: 'Warum es bisher nicht geklappt hat',
       unter: 'Hischams wichtigstes Video: was im Körper passiert, warum Raten nicht reicht und wie er vorgeht.',
       video: KK + 'v7/media/teil2.mp4', poster: KK + 'v7/media/teil2.jpg', laenge: '12:09 Min',
