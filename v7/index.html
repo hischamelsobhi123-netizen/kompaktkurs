@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Kompaktkurs | Hischam El-Sobhi</title>
+<meta name="robots" content="noindex">
+<!-- Kompaktkurs v7 (Ramy 27.11.2026: „so bauen“). Neue Psychologie statt Unterricht:
+     Teil 1 Dein Muster (persönlich, 1–2 Min) → Teil 2 Hischams Arzt-Video (Herzstück) → Teil 3 Menschen wie du.
+     Keine Termin-Knöpfe mitten im Kurs. Erst am Ende: Vertiefungsgespräch (45 Min, Zoom) über /typ-test-termin,
+     dort vorher 3 kurze Fragen. Die alten Workshop-Kapitel (v6) stehen unten als freiwilliges „Mehr wissen“.
+     Persönlicher Link wie bisher: ?n=Vorname&m=B&c=<GHL-Kontakt-ID>&q=<Quelle>. Testmodus: ?test=1 oder localhost (keine Meldungen). -->
+<style>
+  :root{
+    --ink:#132019; --ink2:#22332c; --muted:#4d5d56; --line:#dfe8e3; --soft:#f4f8f6;
+    --green:#1f9a59; --green-d:#157443; --green-bg:#e7f5ec; --dark:#0d2a1e; --dark2:#123c2a; --mint:#7fe0a5;
+    --sans:"Segoe UI",system-ui,-apple-system,Roboto,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:var(--sans);color:var(--ink);background:#fff;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  button{font-family:inherit;}
+  img{max-width:100%;display:block;}
+  [hidden]{display:none !important;}
+  .k7 .wrap{max-width:780px;margin:0 auto;padding:0 16px;}
+
+  .k7 .top{border-bottom:1px solid var(--line);background:#fff;}
+  .k7 .top .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-top:10px;padding-bottom:10px;}
+  .k7 .logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:.95rem;}
+  .k7 .logo img{width:44px;height:auto;}
+  .k7 .top small{color:var(--muted);font-weight:600;font-size:.82rem;text-align:right;}
+
+  .k7 .kopf{background:radial-gradient(900px 500px at 50% 0%,#e2f2e8,#fff 70%);padding:26px 0 8px;text-align:center;}
+  .k7 .kick{display:inline-block;font-weight:800;font-size:.76rem;letter-spacing:.1em;text-transform:uppercase;color:var(--green-d);background:var(--green-bg);border-radius:40px;padding:5px 12px;}
+  .k7 h1{font-weight:800;font-size:clamp(1.55rem,6.4vw,2.3rem);line-height:1.15;margin-top:12px;}
+  .k7 h1 span{color:var(--green);}
+  .k7 .hallo{font-size:1.05rem;color:var(--ink2);max-width:600px;margin:10px auto 0;}
+
+  /* Drei Teile als Schritte */
+  .k7 .schritte{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px auto 0;max-width:640px;}
+  .k7 .sb{font:inherit;text-align:left;border:2px solid var(--line);background:#fff;border-radius:14px;padding:9px 10px;cursor:pointer;color:var(--ink);min-height:62px;}
+  .k7 .sb .n{display:block;font-size:.72rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);}
+  .k7 .sb b{display:block;font-size:.92rem;line-height:1.2;margin-top:2px;}
+  .k7 .sb.akt{border-color:var(--green);background:var(--green-bg);}
+  .k7 .sb.akt .n{color:var(--green-d);}
+  .k7 .sb.ok .n::after{content:" ✓";color:var(--green);}
+
+  .k7 .teil{padding:18px 0 6px;}
+  .k7 .teil h2{font-weight:800;font-size:clamp(1.3rem,5.2vw,1.7rem);line-height:1.2;}
+  .k7 .teil .unter{color:var(--muted);font-size:1rem;margin-top:4px;}
+  .k7 .vbox{position:relative;margin-top:14px;border-radius:18px;overflow:hidden;background:#0b1712;box-shadow:0 18px 44px rgba(13,42,30,.22);aspect-ratio:16/9;}
+  .k7 .vbox video{position:absolute;inset:0;width:100%;height:100%;background:#000;}
+  .k7 .facade{position:absolute;inset:0;background:#0b1712 center/cover no-repeat;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .k7 .facade::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.45));}
+  .k7 .play{position:relative;width:78px;height:78px;border-radius:50%;background:rgba(255,255,255,.95);box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  .k7 .play::after{content:"";position:absolute;left:31px;top:24px;border-left:24px solid var(--green);border-top:15px solid transparent;border-bottom:15px solid transparent;}
+  .k7 .vlen{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.65);color:#fff;font-size:.8rem;font-weight:700;border-radius:8px;padding:3px 8px;}
+  .k7 .vlab{position:absolute;left:10px;top:10px;background:rgba(0,0,0,.6);color:#fff;font-size:.8rem;font-weight:700;border-radius:8px;padding:3px 9px;}
+  .k7 .weiterhin{font-size:.86rem;color:var(--muted);margin-top:8px;}
+
+  .k7 .merk{margin-top:14px;background:var(--soft);border-left:4px solid var(--green);border-radius:12px;padding:12px 14px;font-size:1rem;color:var(--ink2);}
+  .k7 .merk b{color:var(--green-d);}
+
+  .k7 .clips{display:flex;gap:12px;margin:14px -16px 0;padding:0 16px 8px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;}
+  .k7 .clip{flex:0 0 62%;scroll-snap-align:start;}
+  @media(min-width:700px){.k7 .clips{margin:14px 0 0;padding:0;overflow:visible;} .k7 .clip{flex:1 1 0;}}
+  .k7 .clip .vbox{margin-top:0;aspect-ratio:9/16;}
+  .k7 .wisch{font-size:.85rem;color:var(--muted);margin-top:4px;}
+  @media(min-width:700px){.k7 .wisch{display:none;}}
+  .k7 .clip p{font-size:.92rem;font-weight:700;margin-top:6px;text-align:center;}
+
+  .k7 .gross{display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;max-width:520px;margin:18px auto 0;min-height:60px;justify-content:center;
+    text-decoration:none;border:0;border-radius:18px;padding:15px 16px 13px;font-weight:800;font-size:1.12rem;line-height:1.2;cursor:pointer;text-align:center;
+    background:var(--green);color:#fff;box-shadow:0 12px 26px rgba(23,128,72,.28);}
+  .k7 .gross small{display:block;font-weight:600;font-size:.85rem;opacity:.9;}
+  .k7 .gross.leise{background:#fff;color:var(--green-d);border:2px solid var(--green);box-shadow:none;}
+  .k7 .gross.gold{background:linear-gradient(150deg,#f0c45a,#d79a1f);color:#1d1a0c;box-shadow:0 14px 30px rgba(215,154,31,.4);}
+  .k7 .gross.gold small{color:rgba(29,26,12,.75);}
+  .k7 .naechst{margin-top:16px;text-align:center;color:var(--muted);font-size:.95rem;}
+  .k7 .naechst b{color:var(--ink);}
+
+  .k7 .ende{margin:26px 0 8px;background:linear-gradient(160deg,var(--dark2),var(--dark));color:#fff;border-radius:24px;padding:24px 18px 20px;text-align:center;box-shadow:0 22px 54px rgba(13,42,30,.28);}
+  .k7 .ende .kick{background:rgba(127,224,165,.16);color:var(--mint);}
+  .k7 .ende h2{font-weight:800;font-size:clamp(1.35rem,5.6vw,1.8rem);line-height:1.2;margin-top:10px;}
+  .k7 .ende p{color:rgba(255,255,255,.88);font-size:1.02rem;max-width:560px;margin:10px auto 0;}
+  .k7 .ende ul{list-style:none;max-width:480px;margin:14px auto 0;text-align:left;}
+  .k7 .ende li{position:relative;padding-left:26px;margin-top:6px;color:rgba(255,255,255,.92);}
+  .k7 .ende li::before{content:"✓";position:absolute;left:0;color:var(--mint);font-weight:900;}
+  .k7 .ende .leiser{font-size:.92rem;color:rgba(255,255,255,.7);margin-top:14px;}
+
+  .k7 .mehr{margin:26px 0 10px;border:1px solid var(--line);border-radius:18px;overflow:hidden;}
+  .k7 .mehr > button{width:100%;font:inherit;font-weight:800;font-size:1rem;text-align:left;background:var(--soft);border:0;padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;gap:10px;color:var(--ink);}
+  .k7 .mehr > button small{display:block;font-weight:600;font-size:.85rem;color:var(--muted);}
+  .k7 .mliste{padding:6px 14px 14px;}
+  .k7 .mk{border-top:1px solid var(--line);padding:10px 0;}
+  .k7 .mk:first-child{border-top:0;}
+  .k7 .mk > button{width:100%;font:inherit;text-align:left;background:none;border:0;cursor:pointer;color:var(--ink);display:flex;justify-content:space-between;gap:10px;align-items:center;}
+  .k7 .mk > button b{font-size:.98rem;}
+  .k7 .mk > button span{color:var(--muted);font-size:.85rem;white-space:nowrap;}
+  .k7 .mk .vbox{margin-top:10px;}
+
+  .k7 .foot{background:#0a1c14;color:rgba(255,255,255,.7);font-size:.84rem;padding:26px 20px;text-align:center;margin-top:30px;}
+  .k7 .foot a{color:rgba(255,255,255,.85);text-decoration:none;margin:0 7px;}
+  .k7 .foot .hint{margin-top:10px;font-size:.74rem;opacity:.6;max-width:720px;margin-left:auto;margin-right:auto;}
+</style>
+</head>
+<body>
+<div class="k7" id="k7">
+
+<div class="top"><div class="wrap">
+  <div class="logo"><img src="https://hischamelsobhi123-netizen.github.io/relounge-landing/assets-enm/logo-zfg.webp" width="200" height="112" alt="">Zentrum für Gesundheit</div>
+  <small>Kompaktkurs</small>
+</div></div>
+
+<section class="kopf"><div class="wrap">
+  <div class="kick">Kostenlos · 3 Teile · rund 20 Minuten</div>
+  <h1>Warum dein Körper festhält <span>und was er wirklich braucht</span></h1>
+  <p class="hallo" id="hallo">Hischam El-Sobhi, Facharzt für Allgemein- und Ernährungsmedizin, erklärt dir in drei kurzen Teilen, was hinter deinem Muster steckt.</p>
+  <div class="schritte" id="schritte"></div>
+</div></section>
+
+<main class="wrap">
+  <section class="teil" id="teil"></section>
+
+  <section class="ende" id="ende" hidden>
+    <div class="kick">Dein nächster Schritt, wenn du möchtest</div>
+    <h2>Du möchtest über eine ärztliche Begleitung sprechen?</h2>
+    <p>Dann nimm dir Zeit für ein Vertiefungsgespräch mit Hischams Team. Wir schauen gemeinsam auf dich:</p>
+    <ul>
+      <li>deine Geschichte und was du schon versucht hast</li>
+      <li>was bei deinem Muster wirklich dahinterstecken kann</li>
+      <li>ehrlich, ob eine ärztliche Begleitung zu dir passt</li>
+    </ul>
+    <a class="gross gold" id="vtief" href="https://hischamelsobhi.de/typ-test-termin">📅 Vertiefungsgespräch anfragen →<small>rund 45 Minuten · per Zoom · kostenlos</small></a>
+    <p class="leiser">Vorher stellen wir dir 3 kurze Fragen, damit sich das Gespräch für dich lohnt. Noch nicht so weit? Völlig in Ordnung. Der Kurs bleibt für dich offen.</p>
+  </section>
+
+  <section class="mehr" id="mehr">
+    <button type="button" id="mehrKnopf"><span>Mehr wissen: Hischams Workshop-Kapitel<small>6 Kapitel aus dem Workshop zum Vertiefen, freiwillig</small></span><span id="mehrPfeil">＋</span></button>
+    <div class="mliste" id="mliste" hidden></div>
+  </section>
+</main>
+
+<div class="foot">
+  <div><a href="https://hischamelsobhi.de/impressum" target="_blank" rel="noopener">Impressum</a> · <a href="https://hischamelsobhi.de/datenschutz" target="_blank" rel="noopener">Datenschutz</a></div>
+  <div style="margin-top:10px"><b style="color:#fff">Zentrum für Gesundheit</b> · Hischam El-Sobhi · Facharzt für Allgemein- und Ernährungsmedizin</div>
+  <div class="hint">Der Kurs dient der Orientierung und ersetzt keine ärztliche Untersuchung. Keine Heilversprechen. Erfahrungen sind individuell verschieden.</div>
+</div>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var TT = 'https://hischamelsobhi123-netizen.github.io/relounge-landing/';
+  var KK = 'https://hischamelsobhi123-netizen.github.io/kompaktkurs/';
+  var WEBHOOK = 'https://services.leadconnectorhq.com/hooks/rSmjF755vmdOhFQVTAVz/webhook-trigger/e8a534c2-d61a-4ab2-b1e2-d5a50d51f669';
+  var TERMIN = 'https://hischamelsobhi.de/typ-test-termin';
+  var TEST = /^(localhost|127\.0\.0\.1)$/.test(location.hostname) || /[?&]test=1(&|$)/.test(location.search);
+  try{ if(!TEST && sessionStorage.getItem('typ_test') === '1') TEST = true; }catch(e){}
+
+  /* ---------- Wer schaut? (Link, sonst was die Ergebnisseite gemerkt hat) ---------- */
+  var q = new URLSearchParams(location.search);
+  var kk = {};
+  try{ kk = JSON.parse(localStorage.getItem('kurs_kontakt') || '{}') || {}; }catch(e){}
+  function rein(k, v){ if(v && !/\{\{|%7B%7B/.test(v)) kk[k] = v; }
+  rein('c', q.get('c') || q.get('contact_id')); rein('n', q.get('n') || q.get('first_name')); rein('e', q.get('email')); rein('t', q.get('phone'));
+  var m = (q.get('m') || kk.m || '').toUpperCase().replace(/[ +]/g, '-');
+  if(!m){ try{ m = (localStorage.getItem('typ_muster') || '').toUpperCase().replace(/[ +]/g, '-'); }catch(e){} }
+  if(!/^[ABC](-[ABC]){0,2}$/.test(m)) m = '';
+  if(m) kk.m = m;
+  try{ localStorage.setItem('kurs_kontakt', JSON.stringify(kk)); }catch(e){}
+  var quelle = q.get('q') || '';
+  var name = (kk.n || '').replace(/[<>&"]/g, '').slice(0, 30);
+
+  /* ---------- Fortschritt (nur auf diesem Gerät) ---------- */
+  var SP = 'kurs7';
+  var st = {};
+  try{ st = JSON.parse(localStorage.getItem(SP) || '{}') || {}; }catch(e){}
+  st.zeit = st.zeit || {}; st.ok = st.ok || {}; st.gemeldet = st.gemeldet || {};
+  function speichern(){ try{ localStorage.setItem(SP, JSON.stringify(st)); }catch(e){} }
+
+  /* ---------- Meldungen an GHL (gleiches Format wie Kurs v6, damit Schlagwörter und Workflows weiterlaufen) ---------- */
+  function melde(ereignis, daten, immer){
+    if(TEST || !(kk.c || kk.e || kk.t)) return;
+    if(!immer){ if(st.gemeldet[ereignis]) return; st.gemeldet[ereignis] = 1; speichern(); }
+    try{
+      var w = Object.assign({kontakt: kk.c || '', email: kk.e || '', telefon: kk.t || '', vorname: name, ereignis: ereignis, muster: m,
+        fassung: 'v7', fortschritt: Object.keys(st.ok).length, quelle: quelle, datum: new Date().toISOString(), typ_muster: m}, daten || {});
+      var body = new URLSearchParams(w);
+      if(navigator.sendBeacon && navigator.sendBeacon(WEBHOOK, body)) return;
+      fetch(WEBHOOK, {method:'POST', body: body, keepalive: true, mode:'no-cors'});
+    }catch(e){}
+  }
+
+  /* ---------- Inhalt ---------- */
+  var MUSTER = {
+    'A': ['muster-a', 'Alarm'], 'B': ['muster-b', 'Bunker'], 'C': ['muster-c', 'Crash']
+  };
+  var mv = m ? (m.length === 1 ? MUSTER[m][0] : 'muster-m') : '';
+  var MNAME = m ? (m.length === 1 ? m + ' · ' + MUSTER[m][1] : m + ' · Mischmuster') : '';
+  var TEILE = [
+    { nr: 1, kurz: 'Dein Muster', titel: m ? 'Dein Muster: ' + MNAME : 'Die drei Muster',
+      unter: m ? 'Hischam erklärt dir, was hinter deinem Ergebnis steckt.' : 'Hischam erklärt dir, welche drei Muster er in seiner Praxis immer wieder sieht.',
+      video: mv ? TT + 'typ-test/v6/media/' + mv + '.mp4' : TT + 'typ-test/v6/media/typen-erklaerung.mp4',
+      poster: mv ? TT + 'typ-test/v6/media/' + mv + '.jpg' : TT + 'typ-test/v6/media/typen-erklaerung.jpg',
+      laenge: mv ? '1:20 Min' : '1:07 Min',
+      merk: 'Dein Muster ist kein Urteil über dich. Es zeigt, <b>wie dein Körper dich schützt</b>.',
+      naechst: 'Warum Disziplin allein dabei nicht hilft und wie Hischam arbeitet.' },
+    { nr: 2, kurz: 'Hischam erklärt', titel: 'Warum es bisher nicht geklappt hat',
+      unter: 'Hischams wichtigstes Video: was im Körper passiert, warum Raten nicht reicht und wie er vorgeht.',
+      video: KK + 'v7/media/teil2.mp4', poster: KK + 'v7/media/teil2.jpg', laenge: '12:09 Min',
+      merk: 'Es liegt nicht an deiner Disziplin. <b>Messen statt raten</b> ist der Unterschied.',
+      naechst: 'Menschen, die an genau diesem Punkt standen, erzählen.' },
+    { nr: 3, kurz: 'Menschen wie du', titel: 'Menschen, die an deinem Punkt standen',
+      unter: 'Patientinnen und Patienten erzählen von ihrem Weg. Erfahrungen sind individuell verschieden.',
+      clips: (window.K7_CLIPS || [['t03', 'Endlich wieder richtig schlafen'], ['t07', 'Wieder Kleidung, die mir gefällt'], ['t11', 'Dankbar für die Begleitung']]).map(function(c){
+        return { id: c[0], titel: c[1], video: KK + 'v7/media/' + c[0] + '.mp4', poster: TT + 'lp-juni-assets/testimonials/' + c[0] + '.jpg' };
+      }) }
+  ];
+  var ALT = [['v6k1','Dein Muster verstehen','6 Min'],['v6k2','Es liegt nicht an dir','8 Min'],['v6k3','Was in deinem Körper passiert','8 Min'],
+             ['v6k4','Der Eimer mit dem Loch','6 Min'],['v6k5','Die Reihenfolge ist das Geheimnis','6 Min'],['v6k6','So sieht dein Weg aus','8 Min']];
+
+  if(name) $('hallo').innerHTML = 'Hallo ' + name + '! Hischam El-Sobhi, Facharzt für Allgemein- und Ernährungsmedizin, erklärt dir in drei kurzen Teilen, was hinter deinem Muster steckt.';
+
+  /* ---------- Video mit Vorschaubild, lädt erst auf Klick ---------- */
+  function player(box, o, bei){
+    box.innerHTML = '';
+    var f = document.createElement('div'); f.className = 'facade';
+    if(o.poster) f.style.backgroundImage = 'url(' + o.poster + ')';
+    f.innerHTML = '<div class="play" aria-label="Video abspielen"></div>' + (o.laenge ? '<div class="vlen">' + o.laenge + '</div>' : '') + (o.lab ? '<div class="vlab">' + o.lab + '</div>' : '');
+    box.appendChild(f);
+    f.addEventListener('click', function(){
+      var v = document.createElement('video');
+      v.src = o.video; v.controls = true; v.playsInline = true; v.setAttribute('playsinline', ''); v.preload = 'auto';
+      var ab = (bei && bei.ab) || 0;
+      if(ab > 5) v.addEventListener('loadedmetadata', function(){ if(ab < v.duration - 10) v.currentTime = ab; }, {once: true});
+      box.appendChild(v); f.remove();
+      var p = v.play(); if(p && p.catch) p.catch(function(){});
+      if(bei && bei.start) bei.start(v);
+      var letzte = 0;
+      v.addEventListener('timeupdate', function(){
+        if(!v.duration) return;
+        if(bei && bei.zeit && Math.abs(v.currentTime - letzte) > 4){ letzte = v.currentTime; bei.zeit(v.currentTime, v.duration); }
+        if(bei && bei.fast && v.currentTime / v.duration > 0.9){ var g = bei.fast; bei.fast = null; g(); }
+      });
+      v.addEventListener('ended', function(){ if(bei && bei.ende) bei.ende(); });
+    });
+  }
+
+  /* ---------- Teile ---------- */
+  var akt = st.akt || 1;
+  if(akt < 1 || akt > 3) akt = 1;
+  function schritte(){
+    $('schritte').innerHTML = TEILE.map(function(t){
+      return '<button type="button" class="sb' + (t.nr === akt ? ' akt' : '') + (st.ok[t.nr] ? ' ok' : '') + '" data-t="' + t.nr + '"><span class="n">Teil ' + t.nr + '</span><b>' + t.kurz + '</b></button>';
+    }).join('');
+    $('schritte').querySelectorAll('.sb').forEach(function(b){ b.onclick = function(){ zeige(+b.getAttribute('data-t'), true); }; });
+  }
+  function gesehen(nr){
+    if(!st.ok[nr]){ st.ok[nr] = 1; speichern(); schritte(); }
+    melde('kapitel_' + nr + '_gesehen');
+    if(st.ok[2] && st.ok[3]) melde('kurs_komplett');
+    if(nr === 3) endeZeigen();
+  }
+  function endeZeigen(){
+    if(!$('ende').hidden) return;
+    $('ende').hidden = false; melde('abschluss_gesehen');
+  }
+  function zeige(nr, scroll){
+    akt = nr; st.akt = nr; speichern(); schritte();
+    var t = TEILE[nr - 1], h = '';
+    h += '<h2>Teil ' + t.nr + ': ' + t.titel + '</h2><p class="unter">' + t.unter + '</p>';
+    if(t.clips){
+      h += '<p class="wisch">Zur Seite wischen für die nächste Geschichte ›</p><div class="clips">' + t.clips.map(function(c, i){ return '<div class="clip"><div class="vbox" id="clip' + i + '"></div><p>' + c.titel + '</p></div>'; }).join('') + '</div>';
+    } else {
+      h += '<div class="vbox" id="vbox"></div>';
+      if(st.zeit[nr] > 5 && !st.ok[nr]) h += '<p class="weiterhin">Du warst schon bei Minute ' + Math.floor(st.zeit[nr] / 60) + ':' + ('0' + Math.floor(st.zeit[nr] % 60)).slice(-2) + '. Das Video startet dort.</p>';
+      h += '<div class="merk">' + t.merk + '</div>';
+    }
+    if(nr < 3){
+      h += '<button type="button" class="gross' + (st.ok[nr] ? '' : ' leise') + '" id="weiter">Weiter zu Teil ' + (nr + 1) + ' ›<small>' + TEILE[nr].kurz + '</small></button>';
+      h += '<p class="naechst"><b>Im nächsten Teil:</b> ' + t.naechst + '</p>';
+    }
+    $('teil').innerHTML = h;
+    if(t.clips){
+      t.clips.forEach(function(c, i){
+        player($('clip' + i), {video: c.video, poster: c.poster}, {
+          start: function(){ melde('kapitel_3_gestartet'); melde('stimme_' + c.id, {}, false); },
+          fast: function(){ gesehen(3); }
+        });
+      });
+      endeZeigen();
+    } else {
+      player($('vbox'), {video: t.video, poster: t.poster, laenge: t.laenge, lab: nr === 1 ? '▶ Hischam erklärt' : '▶ Hischams Video'}, {
+        ab: st.ok[nr] ? 0 : st.zeit[nr],
+        start: function(){ melde('kapitel_' + nr + '_gestartet'); },
+        zeit: function(s){ st.zeit[nr] = s; speichern(); },
+        fast: function(){ gesehen(nr); var w = $('weiter'); if(w) w.classList.remove('leise'); },
+        ende: function(){ var w = $('weiter'); if(w) w.scrollIntoView({behavior: 'smooth', block: 'center'}); }
+      });
+      $('weiter').onclick = function(){ zeige(nr + 1, true); };
+    }
+    if(scroll) $('schritte').scrollIntoView({behavior: 'smooth', block: 'start'});
+  }
+
+  /* ---------- Ende: Vertiefungsgespräch (Fragen stehen auf /typ-test-termin) ---------- */
+  (function(){
+    var p = new URLSearchParams();
+    if(kk.n) p.set('first_name', kk.n); if(kk.e) p.set('email', kk.e); if(kk.t) p.set('phone', kk.t); if(kk.c) p.set('c', kk.c);
+    if(m) p.set('m', m); p.set('von', 'kurs');
+    $('vtief').href = TERMIN + '?' + p;
+    $('vtief').addEventListener('click', function(){ melde('termin_klick', {wo: 'kurs_ende'}, true); try{ if(window.fbq) fbq('trackCustom', 'KursVertiefungKlick'); }catch(e){} });
+  })();
+
+  /* ---------- Mehr wissen: alte Workshop-Kapitel ---------- */
+  $('mliste').innerHTML = ALT.map(function(a){ return '<div class="mk"><button type="button" data-k="' + a[0] + '"><b>' + a[1] + '</b><span>' + a[2] + ' ▸</span></button><div class="vbox" id="m_' + a[0] + '" hidden></div></div>'; }).join('');
+  $('mehrKnopf').onclick = function(){ var l = $('mliste'); l.hidden = !l.hidden; $('mehrPfeil').textContent = l.hidden ? '＋' : '－'; if(!l.hidden) melde('mehr_wissen_offen'); };
+  $('mliste').querySelectorAll('.mk > button').forEach(function(b){
+    b.onclick = function(){
+      var k = b.getAttribute('data-k'), box = $('m_' + k);
+      if(!box.hidden){ box.hidden = true; box.innerHTML = ''; return; }
+      box.hidden = false;
+      player(box, {video: KK + 'v6/media/' + k + '.mp4', poster: KK + 'v6/media/' + k + '.jpg'}, { start: function(){ melde('mehr_' + k); } });
+      box.querySelector('.facade').click();
+    };
+  });
+
+  schritte();
+  zeige(akt, false);
+  if(st.ok[3]) endeZeigen();
+  melde('kurs_geoeffnet', {fassung: 'v7'});
+})();
+</script>
+</body>
+</html>
