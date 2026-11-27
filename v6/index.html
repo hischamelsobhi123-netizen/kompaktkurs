@@ -296,7 +296,7 @@
     <div class="hint">Dieser Kurs dient der Information und ersetzt keine ärztliche Untersuchung. Keine Heilversprechen. Erfahrungen einzelner Menschen sind nicht übertragbar, jeder Körper ist anders.</div>
   </div>
   <div class="leiste">
-    <a class="tbar" id="tbar" data-termin href="#" hidden><span>📅 Kostenloses Gespräch wählen<small>etwa 15 Minuten</small></span></a>
+    <a class="tbar" id="tbar" data-termin href="#" hidden><span>📅 Vertiefungsgespräch wählen<small>45 Minuten per Zoom · kostenlos</small></span></a>
     <div class="in">
     <button class="zur" id="zurueck">‹ Zurück</button>
     <button class="gross" id="weiter"></button>
@@ -338,18 +338,18 @@ window.KURS = {
   schluss: {
     titel: "Du weißt jetzt, wie dein Körper denkt. <span>Jetzt geht es um deinen.</span>",
     text: "Alles, was du im Kurs gesehen hast, schauen wir uns jetzt bei dir persönlich an. Ein Nein ist genauso in Ordnung wie ein Ja.",
-    knopf: "Gesprächstermin wählen"
+    knopf: "Vertiefungsgespräch wählen"
   },
   /* Ramy 11.11.: Am Ende nur noch EIN Ziel, das kostenlose Gespräch. Der Check (590 €) wird nicht mehr im Kurs gezeigt,
      er gehört ins Gespräch. Alte Check-Daten stehen im git-Verlauf von kompaktkurs (vor 11.11.). */
   gespraech: {
     kick: "Dein nächster Schritt",
-    titel: "Dein kostenloses Gespräch",
+    titel: "Dein Vertiefungsgespräch",
     text: "Bevor irgendetwas entschieden wird, schauen wir gemeinsam auf dich. Darum geht es:",
     punkte: ["Deine Geschichte: was du schon versucht hast und was nie gehalten hat", "Dein Muster: welcher Garten bei dir den Ton angibt", "Was man bei dir messen müsste, statt weiter zu raten", "Welche Reihenfolge bei dir sinnvoll wäre", "Ehrlich: ob eine Begleitung zu dir passt"],
     fakten: "Kostenlos · unverbindlich",   /* Dauer/Art je nach Kalender (Hischam entscheidet 22.11.) */
     danach: "Ein Nein ist genauso in Ordnung wie ein Ja. Du entscheidest in Ruhe.",
-    knopf: "📅 Termin wählen<small>dein kostenloses Gespräch</small>"
+    knopf: "📅 Vertiefungsgespräch wählen<small>45 Minuten per Zoom · kostenlos</small>"
   },
   kapitel: [
     { id: "v6k1", nr: 1, gruppe: "Dein Muster", titel: "Dein Muster verstehen",
@@ -524,8 +524,8 @@ window.KURS = {
   var fertigDa = st.abschluss || st.fertig[K[K.length-1].id];
   if(fertigDa){
     $('hallo').textContent = name ? 'Schön, dass du wieder da bist, ' + name + '.' : 'Schön, dass du wieder da bist.';
-    $('startSatz').textContent = st.termin ? 'Du hast den ganzen Kurs gesehen. Falls dein Termin noch nicht steht: Hier wählst du ihn in einer Minute.' : 'Du hast den ganzen Kurs gesehen. Jetzt fehlt nur noch ein Schritt: dein kostenloses Gespräch mit Hischams Team.';
-    $('losT').textContent = '📅 Termin wählen'; $('losS').textContent = 'etwa 15 Minuten · kostenlos';
+    $('startSatz').textContent = st.termin ? 'Du hast den ganzen Kurs gesehen. Falls dein Termin noch nicht steht: Hier wählst du ihn in einer Minute.' : 'Du hast den ganzen Kurs gesehen. Wenn du über eine Begleitung sprechen möchtest: dein Vertiefungsgespräch mit Hischams Team, 45 Minuten per Zoom.';
+    $('losT').textContent = '📅 Vertiefungsgespräch wählen'; $('losS').textContent = '45 Minuten per Zoom · kostenlos';
     $('zweitKnopf').hidden = false; $('zweitKnopf').textContent = 'Lieber nochmal in den Kurs schauen';
   }
   /* v6 (Ramy 16.11.): Der Kurs beginnt mit dem eigenen Muster. Wer weder bekannt ist noch sein Muster kennt
@@ -632,7 +632,7 @@ window.KURS = {
     if(gebucht) return '';
     return '<div class="tkarte"><div class="ck">Schon klar für dich?</div><h3>Du weißt schon, dass du ärztlich begleitet werden möchtest?</h3>'
       + '<p>Dann wähl dir jetzt einen festen Termin für dein persönliches Gespräch. Wir schauen gemeinsam, wie es bei dir genau aussieht. Den Kurs kannst du trotzdem zu Ende schauen.</p>'
-      + '<a class="gross" data-termin href="#">📅 Meinen Termin wählen<small>etwa 15 Minuten · kostenlos</small></a></div>';
+      + '<a class="gross" data-termin href="#">📅 Vertiefungsgespräch wählen<small>45 Minuten per Zoom · kostenlos</small></a></div>';
   }
   function teilenKarte(){
     return '<div class="teilk"><b>Kennst du jemanden, dem es genauso geht?</b><p>Schick ihr Hischams Kurs. Sie schaut in ihrem Tempo, kostenlos.</p>'
@@ -827,11 +827,11 @@ window.KURS = {
       /* 11.11.: Wer am Ende auf „Weiter“ tippt, sieht die Karten unter dem Video nie. Darum steht der Termin hier im Endbild:
          nach Kap. 10 als Hauptknopf, nach Kap. 4/6/8 als zweiter Weg. */
       if(letztes){
-        e.innerHTML = '<div class="hak">✓ Du hast den ganzen Kurs geschafft</div><a class="gross" data-termin href="#">📅 Termin wählen<small>dein kostenloses Gespräch mit Hischams Team</small></a>'
+        e.innerHTML = '<div class="hak">✓ Du hast den ganzen Kurs geschafft</div><a class="gross" data-termin href="#">📅 Vertiefungsgespräch wählen<small>45 Minuten per Zoom mit Hischams Team</small></a>'
           + '<div class="unten"><button class="nochmal" data-weiter>Zum Abschluss</button><button class="nochmal" data-nochmal>Nochmal ansehen</button></div>';
       } else {
         e.innerHTML = '<div class="hak">✓ Kapitel '+k.nr+' geschafft</div><button class="gross" data-weiter>' + (akt === 0 && brauchtTest() ? 'Jetzt dein Muster finden ›<small>2 Minuten · Ergebnis sofort</small>' : 'Weiter ›<small>Kapitel '+K[akt+1].nr+': '+K[akt+1].titel+'</small>') + '</button>'
-          + '<div class="unten">' + (TERMIN_NACH.indexOf(k.nr) > -1 ? '<a class="tlink" data-termin href="#">📅 Termin wählen</a>' : '')
+          + '<div class="unten">' + (TERMIN_NACH.indexOf(k.nr) > -1 ? '<a class="tlink" data-termin href="#">📅 Vertiefungsgespräch wählen</a>' : '')
           + '<button class="nochmal" data-nochmal>Nochmal ansehen</button></div>';
       }
       box.appendChild(e); verknuepfen(e);
